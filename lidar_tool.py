@@ -1,13 +1,16 @@
+import pickle
+
 import cv2.cv2 as cv2
 import numpy as np
 from rplidar import RPLidar
+
+from visualize_point_cloud import draw_point_cloud
 
 lidar = RPLidar('/dev/ttyUSB0')
 window = "lidar"
 window_size = 500
 
 cv2.namedWindow(window)
-
 for i, scan in enumerate(lidar.iter_scans()):
     img = np.zeros((window_size, window_size, 3), dtype=np.uint8)
     scan = np.array(scan)
@@ -18,17 +21,13 @@ for i, scan in enumerate(lidar.iter_scans()):
     xs = np.cos(angles) * distances
     ys = np.sin(angles) * distances
 
-    for (x, y) in zip(xs, ys):
-        x = int(x / 6500 * window_size)
-        y = int(y / 6500 * window_size)
-
-        x += window_size // 2
-        y += window_size // 2
-
-        cv2.circle(img, (x, y), 5, (255, 255, 0), -1)
+    pc = np.stack((xs, ys))
+    draw_point_cloud(pc, img, window_size, (255, 255, 0))
 
     cv2.imshow(window, img)
     key = cv2.waitKey(1)
+    if key == ord(' '):
+        pickle.dump(scan, open(f'scans/{i}.pkl', 'wb'))
     if key == ord('q') or key == 27:
         break
 
