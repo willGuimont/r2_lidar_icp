@@ -2,3 +2,5 @@ numpy
 jax
 rplidar-roboticia
 matplotlib
+opencv-python
+opencv-contrib-python
