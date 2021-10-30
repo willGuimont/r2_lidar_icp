@@ -20,7 +20,7 @@ def scan_to_point_cloud(scan):
 
 def point_to_homogeneous(pc):
     """
-    :param pc: Nx3 or Nx4 numpy array
+    :param pc: Nx2, Nx3 or Nx4 numpy array
     :return: deep copy of pc in homogeneous coordinates.
     """
     if pc.shape[1] == 4:
@@ -28,6 +28,9 @@ def point_to_homogeneous(pc):
     elif pc.shape[1] == 3:
         cp = np.copy(pc)
         return np.concatenate((cp.T, np.ones((1, cp.shape[0]))), axis=0)
+    elif pc.shape[1] == 2:
+        cp = np.copy(pc)
+        return np.concatenate((cp.T, np.zeros((1, cp.shape[0])), np.ones((1, cp.shape[0]))), axis=0)
     else:
         raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
 

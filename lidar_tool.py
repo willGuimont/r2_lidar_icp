@@ -31,6 +31,7 @@ for i, scan in enumerate(lidar.iter_scans()):
     if key == ord('q') or key == 27:
         break
 
+cv2.destroyAllWindows()
 lidar.stop()
 lidar.stop_motor()
 lidar.disconnect()
