@@ -1,9 +1,9 @@
+import argparse
 import pathlib
 import pickle
 
 import cv2.cv2 as cv2
 import numpy as np
-import argparse
 
 from visualize_point_cloud import draw_point_cloud
 

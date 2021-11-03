@@ -4,6 +4,7 @@ import numpy as np
 from icp import point_to_homogeneous
 from transformation_matrix import TransformationMatrix
 
+
 def line_line_intersection(p1, p2, p3, p4):
     denominator = (p4[0] - p3[0]) * (p1[1] - p2[1]) - (p1[0] - p2[0]) * (p4[1] - p3[1])
     if denominator == 0:
