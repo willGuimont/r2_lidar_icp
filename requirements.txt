@@ -3,4 +3,3 @@ rplidar-roboticia
 matplotlib
 opencv-python
 opencv-contrib-python
-torch
