@@ -18,6 +18,7 @@ if __name__ == '__main__':
         save_folder = pathlib.Path(save_folder)
 
     lidar = RPLidar('/dev/ttyUSB0')
+    print('Recording...')
 
     save_folder.mkdir(parents=True, exist_ok=True)
 
