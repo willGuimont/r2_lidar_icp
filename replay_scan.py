@@ -16,7 +16,7 @@ if __name__ == '__main__':
     scans_paths = scans_path.iterdir()
 
     window = "lidar"
-    window_size = 500
+    window_size = 750
 
     cv2.namedWindow(window)
     for i, scan in enumerate(sorted(list(scans_paths))):
