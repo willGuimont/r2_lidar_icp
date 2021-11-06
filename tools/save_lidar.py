@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     save_folder = args.scans_path
     if save_folder is None:
-        save_folder = pathlib.Path('live_scans').joinpath(str(time.time()))
+        save_folder = pathlib.Path('../data').joinpath(str(time.time()))
     else:
         save_folder = pathlib.Path(save_folder)
 

@@ -2,7 +2,7 @@ import cv2.cv2 as cv2
 import numpy as np
 
 from icp import point_to_homogeneous
-from transformation_matrix import TransformationMatrix
+from utils.transformation_matrix import TransformationMatrix
 
 
 def line_line_intersection(p1, p2, p3, p4):
