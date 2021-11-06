@@ -1,19 +1,19 @@
 import pickle
 
-import numpy as np
+import torch
 
 
 def scan_to_point_cloud(scan):
-    scan = np.array(scan)
+    scan = torch.array(scan)
 
     qualities, angles, distances = scan[:, 0], scan[:, 1], scan[:, 2]
-    angles = np.deg2rad(angles)
+    angles = torch.deg2rad(angles)
 
-    xs = np.cos(angles) * distances
-    ys = np.sin(angles) * distances
-    zs = np.zeros_like(xs)
+    xs = torch.cos(angles) * distances
+    ys = torch.sin(angles) * distances
+    zs = torch.zeros_like(xs)
 
-    stack = np.stack([xs, ys, zs]).T
+    stack = torch.stack([xs, ys, zs]).T
     return stack
 
 
@@ -23,13 +23,13 @@ def point_to_homogeneous(pc):
     :return: deep copy of pc in homogeneous coordinates.
     """
     if pc.shape[1] == 4:
-        return np.copy(pc.T)
+        return torch.copy(pc.T)
     elif pc.shape[1] == 3:
-        cp = np.copy(pc)
-        return np.concatenate((cp.T, np.ones((1, cp.shape[0]))), axis=0)
+        cp = torch.copy(pc)
+        return torch.concatenate((cp.T, torch.ones((1, cp.shape[0]))), axis=0)
     elif pc.shape[1] == 2:
-        cp = np.copy(pc)
-        return np.concatenate((cp.T, np.zeros((1, cp.shape[0])), np.ones((1, cp.shape[0]))), axis=0)
+        cp = torch.copy(pc)
+        return torch.concatenate((cp.T, torch.zeros((1, cp.shape[0])), torch.ones((1, cp.shape[0]))), axis=0)
     else:
         raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
 
@@ -43,11 +43,11 @@ def nearest_neighbor(src, dst):
             distance: Euclidean distances (errors) of the nearest neighbor
             indices: dst indices of the nearest neighbor
     """
-    indices = np.zeros(src.shape[0], dtype=np.int)
-    distances = np.zeros(src.shape[0])
+    indices = torch.zeros(src.shape[0], dtype=torch.int)
+    distances = torch.zeros(src.shape[0])
     for i, s in enumerate(src):
-        distance_mat = np.linalg.norm(dst[:] - s, axis=1)
-        indices[i] = np.argmin(distance_mat)
+        distance_mat = torch.linalg.norm(dst[:] - s, axis=1)
+        indices[i] = torch.argmin(distance_mat)
         distances[i] = distance_mat[indices[i]]
     return distances, indices
 
@@ -65,26 +65,26 @@ def best_fit_transform(A, B):
     assert len(A) == len(B)
 
     # translate points to their centroids
-    centroid_A = np.mean(A, axis=0)
-    centroid_B = np.mean(B, axis=0)
+    centroid_A = torch.mean(A, axis=0)
+    centroid_B = torch.mean(B, axis=0)
     AA = A - centroid_A
     BB = B - centroid_B
 
     # rotation matrix
-    H = np.dot(AA.T, BB)
-    U, S, Vt = np.linalg.svd(H)
-    R = np.dot(Vt.T, U.T)
+    H = torch.dot(AA.T, BB)
+    U, S, Vt = torch.linalg.svd(H)
+    R = torch.dot(Vt.T, U.T)
 
     # special reflection case
-    if np.linalg.det(R) < 0:
+    if torch.linalg.det(R) < 0:
         Vt[2, :] *= -1
-        R = np.dot(Vt.T, U.T)
+        R = torch.dot(Vt.T, U.T)
 
     # translation
-    t = centroid_B.T - np.dot(R, centroid_A.T)
+    t = centroid_B.T - torch.dot(R, centroid_A.T)
 
     # homogeneous transformation
-    T = np.identity(4)
+    T = torch.identity(4)
     T[0:3, 0:3] = R
     T[0:3, 3] = t
 
@@ -93,7 +93,7 @@ def best_fit_transform(A, B):
 
 def icp(A, B, init_pose=None, max_iter=50, tolerance=0.001):
     """
-    The Iterative Closest Point method
+    Fully differentiable Iterative Closest Point method
     :param A: Nx3 or Nx4 numpy array of source 3D points
     :param B: Nx3 or Nx4 numpy array of destination 3D point
     :param init_pose: 4x4 homogeneous transformation
@@ -107,22 +107,9 @@ def icp(A, B, init_pose=None, max_iter=50, tolerance=0.001):
     dst = point_to_homogeneous(B)
 
     if init_pose is not None:
-        src = np.dot(init_pose, src)
+        src = torch.dot(init_pose, src)
 
-    prev_error = 0
-    distances = None
-    for i in range(max_iter):
-        distances, indices = nearest_neighbor(src[:3, :].T, dst[:3, :].T)
-        T, _, _ = best_fit_transform(src[:3, :].T, dst[:3, indices].T)
-        src = np.dot(T, src)
-        mean_error = np.average(distances)
-        if abs(prev_error - mean_error) < tolerance:
-            break
-        prev_error = mean_error
-
-    T, _, _ = best_fit_transform(A[:, :3], src[:3, :].T)
-    return T, distances
-
+    raise NotImplementedError()
 
 if __name__ == '__main__':
     scan_0 = pickle.load(open('scans/scan_0.pkl', 'rb'))
