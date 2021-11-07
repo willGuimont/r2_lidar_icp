@@ -1,5 +1,3 @@
-import pickle
-
 import numpy as np
 
 
@@ -125,12 +123,28 @@ def icp(A, B, init_pose=None, max_iter=50, tolerance=0.001):
 
 
 if __name__ == '__main__':
-    scan_0 = pickle.load(open('scans/scan_0.pkl', 'rb'))
-    scan_1 = pickle.load(open('scans/scan_1.pkl', 'rb'))
+    import pickle
+    from cv2 import cv2
+    from tools.visualize_point_cloud import draw_point_cloud
+
+    scan_0 = pickle.load(open('data/live/8.pkl', 'rb'))
+    scan_1 = pickle.load(open('data/live/85.pkl', 'rb'))
 
     pc0 = scan_to_point_cloud(scan_0)
     pc1 = scan_to_point_cloud(scan_1)
 
     T, distances = icp(pc0, pc1)
 
-    print(T)
+    window = "icp"
+    window_size = 500
+    cv2.namedWindow(window)
+
+    src = point_to_homogeneous(pc0)
+    dst = point_to_homogeneous(pc1)
+
+    img = np.zeros((window_size, window_size, 3), dtype=np.uint8)
+    draw_point_cloud(src, img, window_size, (255, 255, 0))
+    draw_point_cloud(dst, img, window_size, (255, 0, 255))
+    draw_point_cloud(T @ point_to_homogeneous(pc0), img, window_size, (255, 255, 255))
+    cv2.imshow(window, img)
+    cv2.waitKey(0)

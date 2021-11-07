@@ -28,7 +28,7 @@ if __name__ == '__main__':
         cv2.imshow(window, img)
         key = cv2.waitKey(1)
         if key == ord(' '):
-            pickle.dump(scan, open(f'scans/{i}.pkl', 'wb'))
+            pickle.dump(scan, open(f'data/live/{i}.pkl', 'wb'))
         if key == ord('q') or key == 27:
             break
 
