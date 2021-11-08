@@ -1,5 +1,5 @@
 import numpy as np
-
+from prosac.random_consensus import Model, ransac, prosac
 
 def scan_to_point_cloud(scan):
     scan = np.array(scan)
@@ -30,6 +30,15 @@ def point_to_homogeneous(pc):
         return np.concatenate((cp.T, np.zeros((1, cp.shape[0])), np.ones((1, cp.shape[0]))), axis=0)
     else:
         raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
+
+
+def homogeneous_to_points(pc):
+    """
+    Convert homogeneous point cloud into normal 3D coordinates point cloud
+    :param pc: 4xN
+    :return: Nx3
+    """
+    return (pc[:3, :] / pc[3, :]).T
 
 
 def nearest_neighbor(src, dst):
@@ -88,6 +97,8 @@ def best_fit_transform(A, B):
 
     return T, R, t
 
+def gauss_newton_best_fit_transform(A, B):
+    ...
 
 def icp(A, B, init_pose=None, max_iter=50, tolerance=0.001):
     """
@@ -135,7 +146,7 @@ if __name__ == '__main__':
 
     T, distances = icp(pc0, pc1)
 
-    window = "icp"
+    window = "point_cloud"
     window_size = 500
     cv2.namedWindow(window)
 

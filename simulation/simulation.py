@@ -1,7 +1,7 @@
 import cv2.cv2 as cv2
 import numpy as np
 
-from icp import point_to_homogeneous
+from point_cloud import point_to_homogeneous
 from utils.transformation_matrix import TransformationMatrix
 
 
