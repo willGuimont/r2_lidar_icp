@@ -210,7 +210,7 @@ if __name__ == '__main__':
     T, distances = icp(pc0, pc1)
     print(T)
 
-    window = "point_cloud"
+    window = "lidar_icp"
     window_size = 500
     cv2.namedWindow(window)
 

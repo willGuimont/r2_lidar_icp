@@ -5,8 +5,8 @@ import pickle
 import cv2.cv2 as cv2
 import numpy as np
 
-from point_cloud.icp import scan_to_point_cloud, icp, point_to_homogeneous, homogeneous_to_points
-from point_cloud.sampling import furthest_point_sampling
+from backup.point_cloud.icp import scan_to_point_cloud, icp, point_to_homogeneous, homogeneous_to_points
+from lidar_icp.sampling import furthest_point_sampling
 from tools.visualize_point_cloud import draw_point_cloud
 
 if __name__ == '__main__':

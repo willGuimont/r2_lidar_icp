@@ -1,5 +1,5 @@
 import numpy as np
-from prosac.random_consensus import Model, ransac, prosac
+
 
 def scan_to_point_cloud(scan):
     scan = np.array(scan)
@@ -97,8 +97,10 @@ def best_fit_transform(A, B):
 
     return T, R, t
 
+
 def gauss_newton_best_fit_transform(A, B):
     ...
+
 
 def icp(A, B, init_pose=None, max_iter=50, tolerance=0.001):
     """
@@ -146,7 +148,7 @@ if __name__ == '__main__':
 
     T, distances = icp(pc0, pc1)
 
-    window = "point_cloud"
+    window = "lidar_icp"
     window_size = 500
     cv2.namedWindow(window)
 
