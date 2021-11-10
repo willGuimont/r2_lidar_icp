@@ -7,6 +7,7 @@ import numpy as np
 
 from tools.visualize_point_cloud import draw_point_cloud
 
+# TODO refactor with PointCloud
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Replay a lidar scan sequence')
     parser.add_argument('scans_path', help='Scan folder')

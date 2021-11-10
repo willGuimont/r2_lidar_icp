@@ -6,6 +6,7 @@ import time
 import numpy as np
 from rplidar import RPLidar
 
+# TODO refactor with PointCloud
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Path to save to')
     parser.add_argument('scans_path', nargs='?', help='Scan folder')

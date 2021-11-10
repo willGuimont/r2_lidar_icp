@@ -1,72 +1,12 @@
 from copy import copy
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation
+from cv2 import cv2
+from matplotlib import animation, pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-
-def sorted_eig(A):
-    eigen_values, eigen_vectors = np.linalg.eig(A)
-    idx = np.argsort(eigen_values)
-    eigen_values = eigen_values[idx]
-    eigen_vectors = eigen_vectors[:, idx]
-    return eigen_values, eigen_vectors
-
-def point_to_homogeneous(pc):
-    if pc.shape[0] == 3:
-        return np.copy(pc.T)
-    elif pc.shape[0] == 2:
-        cp = np.copy(pc)
-        return np.stack((cp, np.ones((1, cp.shape[0]))), axis=0)
-    else:
-        raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
-
-def rigid_transformation(params):
-    """
-    Returns a rigid transformation matrix
-    :params: numpy array, params[0]=tx, params[1]=ty, params[2]=theta
-    :returns: LaTeX bmatrix as a string
-    """
-    return np.array([[np.cos(params[2]), -np.sin(params[2]), params[0]],
-                     [np.sin(params[2]), np.cos(params[2]), params[1]],
-                     [0, 0, 1]])
-
-
-def mode_beta(param):
-    alpha = param[0]
-    beta = param[1]
-    return (alpha - 1) / (alpha + beta - 2)
-
-
-def build_room(param_v, param_h, angle=0., wall_thickness=0.01, nb_pts=400):
-    nb_pts = int(nb_pts / 4)
-
-    sensor_center = np.ones(3)
-
-    wall_top = np.ones([3, nb_pts])
-    wall_top[0] = np.random.beta(param_v[0], param_v[1], nb_pts)
-    wall_top[1] = np.random.uniform(-wall_thickness / 2., wall_thickness / 2., nb_pts) + 1.
-
-    wall_bottom = np.ones([3, nb_pts])
-    wall_bottom[0] = np.random.beta(param_v[0], param_v[1], nb_pts)
-    wall_bottom[1] = np.random.uniform(-wall_thickness / 2., wall_thickness / 2., nb_pts)
-    sensor_center[0] = mode_beta(param_v)
-
-    wall_left = np.ones([3, nb_pts])
-    wall_left[1] = np.random.beta(param_h[0], param_h[1], nb_pts)
-    wall_left[0] = np.random.uniform(-wall_thickness / 2., wall_thickness / 2., nb_pts)
-
-    wall_right = np.ones([3, nb_pts])
-    wall_right[1] = np.random.beta(param_h[0], param_h[1], nb_pts)
-    wall_right[0] = np.random.uniform(-wall_thickness / 2., wall_thickness / 2., nb_pts) + 1.
-
-    sensor_center[1] = mode_beta(param_h)
-
-    T = rigid_transformation([-sensor_center[0], -sensor_center[1], angle])
-    P = np.hstack([wall_bottom, wall_top, wall_left, wall_right])
-
-    return T @ P
+from r2_lidar_icp.point_cloud import PointCloud
+from r2_lidar_icp.utils import build_parallelepiped
 
 
 def draw_base_vector(ax, head, text="", origin=np.array([0., 0.]), text_offset=np.array([0., 0.]), color="tab:red",
@@ -184,17 +124,6 @@ class IcpInspector():
         return anim
 
 
-def build_parallelepiped(P):
-    assert (P.shape[0] == 3), "Wrong number of dimensions"
-    assert (P.shape[1] == 8), "Wrong number of points"
-    return [[P[:, 0], P[:, 1], P[:, 2], P[:, 3]],
-            [P[:, 4], P[:, 5], P[:, 6], P[:, 7]],
-            [P[:, 0], P[:, 1], P[:, 5], P[:, 4]],
-            [P[:, 2], P[:, 3], P[:, 7], P[:, 6]],
-            [P[:, 1], P[:, 2], P[:, 6], P[:, 5]],
-            [P[:, 4], P[:, 7], P[:, 3], P[:, 0]]]
-
-
 def draw_parallelepiped(ax, P, *args, **kwargs):
     if (P.shape[0] == 3):
         vertices = build_parallelepiped(P)
@@ -225,3 +154,13 @@ def draw_3d_point_clouds(ax, P, Q, errors):
     ax.xaxis._axinfo["grid"]['color'] = grid_color
     ax.yaxis._axinfo["grid"]['color'] = grid_color
     ax.zaxis._axinfo["grid"]['color'] = grid_color
+
+
+def draw_point_cloud_cv2(pc: PointCloud, img, size: int, color: (int, int, int), scaling_factor=10_000):
+    assert pc.features.shape[0] == 3, "only works with 2d points"
+    tmp = np.copy(pc.features)
+    tmp = tmp / tmp[2, :]
+    for (x, y) in tmp[:2, :].T:
+        x = int(x / scaling_factor * size + size / 2)
+        y = int(y / scaling_factor * size + size / 2)
+        cv2.circle(img, (x, y), 3, color, -1)

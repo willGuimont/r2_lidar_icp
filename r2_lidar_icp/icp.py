@@ -1,12 +1,13 @@
+import pickle
 from copy import copy
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import spatial
 
-from lidar_icp.point_cloud import PointCloud
-from lidar_icp.preprocessing import furthest_point_sampling_decimate, make_descriptors
-from lidar_icp.utils import build_room, IcpInspector, draw_point_clouds, rigid_transformation
+from r2_lidar_icp.point_cloud import PointCloud
+from r2_lidar_icp.preprocessing import furthest_point_sampling_decimate, make_descriptors
+from r2_lidar_icp.utils import build_room, rigid_transformation
 
 
 def matching(P, Q):
@@ -78,19 +79,23 @@ def error_minimizer(P, Q, indices, P_mask):
     return rigid_transformation(x)
 
 
-def icp(P, Q, nb_iter=5, inspect=None, tau_filter=0.25):
+# TODO add tolerance parameter
+# TODO try torch differentiable icp
+def icp(P, Q, nb_iter=5, init_pose=None, inspect=None, tau_filter=0.25):
     # initial guess
-    # TODO take in param
-    T = np.eye(3)
+    if init_pose is not None:
+        T = np.copy(init_pose)
+    else:
+        T = np.eye(3)
 
     # preprocessing
     # TODO move preprocessing outside icp algorithm
-    p_keep = int(P.features.shape[1] * 0.75)
-    q_keep = int(P.features.shape[1] * 0.75)
-    P = furthest_point_sampling_decimate(P, p_keep, skip_initial=True)
-    Q = furthest_point_sampling_decimate(Q, q_keep, skip_initial=True)
-    P = make_descriptors(P, 10, compute_normals=True)
-    Q = make_descriptors(Q, 10, compute_normals=True)
+    # p_keep = int(P.features.shape[1] )
+    # q_keep = int(P.features.shape[1] * 0.75)
+    # P = furthest_point_sampling_decimate(P, p_keep, skip_initial=True)
+    # Q = furthest_point_sampling_decimate(Q, q_keep, skip_initial=True)
+    P = make_descriptors(P, 20, compute_normals=True)
+    Q = make_descriptors(Q, 20, compute_normals=True)
 
     P_prime = copy(P)
 
@@ -124,21 +129,25 @@ def icp(P, Q, nb_iter=5, inspect=None, tau_filter=0.25):
 
 
 if __name__ == '__main__':
+    from r2_lidar_icp.draw_utils import IcpInspector, draw_point_clouds
+
     # generating the reading point cloud
-    angle_p = np.random.uniform(-0.1, 0.1)
-    P = PointCloud()
-    P.features = build_room([1.2, 2.], [2.2, 1.5], angle=angle_p, nb_pts=390)
+    # angle_p = np.random.uniform(-0.1, 0.1)
+    # P = PointCloud()
+    # P.features = build_room([1.2, 2.], [2.2, 1.5], angle=angle_p, nb_pts=390)
+    P = PointCloud.from_scan(pickle.load(open('data/pi/test1/00000.pkl', 'rb')))
 
     # generating the reference point cloud
-    angle_q = np.random.uniform(-0.1, 0.1)
-    Q = PointCloud()
-    Q.features = build_room([1.8, 2.], [2.8, 2.2], angle=angle_q, nb_pts=450)
+    # angle_q = np.random.uniform(-0.1, 0.1)
+    # Q = PointCloud()
+    # Q.features = build_room([1.8, 2.], [2.8, 2.2], angle=angle_q, nb_pts=450)
+    Q = PointCloud.from_scan(pickle.load(open('data/pi/test1/00050.pkl', 'rb')))
 
     # an inspector to plot results
     inspector = IcpInspector()
 
     # calling your iterative closest point algorithm
-    T = icp(P, Q, nb_iter=5, inspect=inspector)
+    T = icp(P, Q, nb_iter=5, inspect=inspector, tau_filter=1000)
 
     # ------------------------------------
     # plotting results

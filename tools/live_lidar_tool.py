@@ -6,6 +6,7 @@ from rplidar import RPLidar
 
 from tools.visualize_point_cloud import draw_point_cloud
 
+# TODO refactor with PointCloud
 if __name__ == '__main__':
     lidar = RPLidar('/dev/ttyUSB0')
     window = "lidar"

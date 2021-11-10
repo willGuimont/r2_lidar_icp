@@ -4,9 +4,9 @@ from typing import Optional, Callable
 import numpy as np
 from scipy import spatial
 
-from lidar_icp.point_cloud import PointCloud
-from lidar_icp.sampling import l2_norm, furthest_point_sampling
-from lidar_icp.utils import sorted_eig
+from r2_lidar_icp.point_cloud import PointCloud
+from r2_lidar_icp.sampling import l2_norm, furthest_point_sampling
+from r2_lidar_icp.utils import sorted_eig
 
 
 def no_preprocessing(point_cloud: PointCloud) -> PointCloud:
@@ -51,7 +51,7 @@ def make_descriptors(point_cloud: PointCloud, k_nn: int, compute_normals: bool =
     normals = np.zeros([point_dim, pc.features.shape[1]])
 
     for i, nn_i in enumerate(indices):
-        neighbors = pc.features[:point_dim, nn_i]
+        neighbors = pc.features[:point_dim, nn_i]  # TODO filter points that are too far away
         mu = np.mean(neighbors, axis=1)
         errors = (neighbors.T - mu).T
         cov = 1 / k_nn * (errors @ errors.T)
