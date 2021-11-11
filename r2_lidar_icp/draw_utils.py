@@ -156,11 +156,11 @@ def draw_3d_point_clouds(ax, P, Q, errors):
     ax.zaxis._axinfo["grid"]['color'] = grid_color
 
 
-def draw_point_cloud_cv2(pc: PointCloud, img, size: int, color: (int, int, int), scaling_factor=10_000):
+def draw_point_cloud_cv2(pc: PointCloud, img, size: int, color: (int, int, int), scaling_factor=10_000, offset=(0, 0)):
     assert pc.features.shape[0] == 3, "only works with 2d points"
     tmp = np.copy(pc.features)
     tmp = tmp / tmp[2, :]
     for (x, y) in tmp[:2, :].T:
-        x = int(x / scaling_factor * size + size / 2)
-        y = int(y / scaling_factor * size + size / 2)
+        x = int(x / scaling_factor * size + size / 2) + offset[0]
+        y = int(y / scaling_factor * size + size / 2) + offset[1]
         cv2.circle(img, (x, y), 3, color, -1)

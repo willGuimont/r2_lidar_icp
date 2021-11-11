@@ -1,7 +1,7 @@
+wheel
 numpy
 rplidar-roboticia
 matplotlib
+scipy
 opencv-python
 opencv-contrib-python
-numba
-scipy
