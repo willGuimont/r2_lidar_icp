@@ -8,8 +8,7 @@ from scipy import spatial
 
 from r2_lidar_icp.draw_utils import IcpInspector
 from r2_lidar_icp.point_cloud import PointCloud
-from r2_lidar_icp.preprocessing import make_normal_descriptors
-from r2_lidar_icp.utils import rigid_transformation
+from r2_lidar_icp.utils import rigid_transformation, sorted_eig
 
 
 def matching(P, Q):
@@ -84,14 +83,38 @@ def error_minimizer(P, Q, indices, P_mask):
     return rigid_transformation(x)
 
 
+def make_normal_descriptors(point_cloud: PointCloud, k_nn: int) -> PointCloud:
+    pc = copy(point_cloud)
+
+    point_dim = pc.features.shape[0] - 1  # exclude homogeneous coordinate
+
+    # compute knn using KDTree
+    tree = spatial.KDTree(pc.features.T)
+    dist, indices = tree.query(pc.features.T, k=k_nn)
+
+    normals = np.zeros([point_dim, pc.features.shape[1]])
+
+    for i, nn_i in enumerate(indices):
+        neighbors = pc.features[:point_dim, nn_i]  # TODO filter points that are too far away
+        mu = np.mean(neighbors, axis=1)
+        errors = (neighbors.T - mu).T
+        cov = 1 / k_nn * (errors @ errors.T)
+        eigen_values, eigen_vectors = sorted_eig(cov)
+        normals[:, i] = eigen_vectors[:, 0]  # smallest eigen vector
+
+    pc.descriptors = normals
+
+    return pc
+
+
 # TODO add tolerance parameter
 # TODO try torch differentiable icp
 def icp(P: PointCloud,
         Q: PointCloud,
         nb_iter: int,
-        init_pose: Optional[np.ndarray]=None,
-        tau_filter: Optional[float]=None,
-        min_error_delta: Optional[float]=None,
+        init_pose: Optional[np.ndarray] = None,
+        tau_filter: Optional[float] = None,
+        min_error_delta: Optional[float] = None,
         inspect: Optional[IcpInspector] = None) -> np.ndarray:
     """
     Point-to-Plane ICP algorithm
