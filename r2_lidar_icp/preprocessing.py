@@ -38,8 +38,7 @@ def furthest_point_sampling_decimate(point_cloud: PointCloud,
     return pc
 
 
-# TODO add more descriptors
-def make_descriptors(point_cloud: PointCloud, k_nn: int, compute_normals: bool = True) -> PointCloud:
+def make_normal_descriptors(point_cloud: PointCloud, k_nn: int) -> PointCloud:
     pc = copy(point_cloud)
 
     point_dim = pc.features.shape[0] - 1  # exclude homogeneous coordinate
@@ -58,9 +57,6 @@ def make_descriptors(point_cloud: PointCloud, k_nn: int, compute_normals: bool =
         eigen_values, eigen_vectors = sorted_eig(cov)
         normals[:, i] = eigen_vectors[:, 0]  # smallest eigen vector
 
-    pc.descriptors = np.zeros((0, pc.features.shape[1]))
-
-    if compute_normals:
-        pc.descriptors = np.concatenate([pc.descriptors, normals])
+    pc.descriptors = normals
 
     return pc

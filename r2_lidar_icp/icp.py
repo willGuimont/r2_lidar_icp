@@ -1,12 +1,14 @@
 import pickle
 from copy import copy
+from typing import Optional
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import spatial
 
+from r2_lidar_icp.draw_utils import IcpInspector
 from r2_lidar_icp.point_cloud import PointCloud
-from r2_lidar_icp.preprocessing import make_descriptors
+from r2_lidar_icp.preprocessing import make_normal_descriptors
 from r2_lidar_icp.utils import rigid_transformation
 
 
@@ -25,14 +27,14 @@ def matching(P, Q):
     return indices
 
 
-def outlier_filter(P, Q, indices, tau: float = 0.25):
+def outlier_filter(P, Q, indices, tau: Optional[float] = None):
     """
     Reduce the impact of outlier.
     :param P: a 2D point cloud in homogeneous coordinates (3 x n), where n is the number of points.
     :param Q: a 2D point cloud in homogeneous coordinates (3 x m), where m is the number of points.
     :param indices: an array representing the misalignment between two point clouds.
     :param tau: distance threshold to filter out outliers
-    :return: (P_mask, Q_indices), where P_mask is a mask indicating which points of P are kept,
+    :return: (distances, P_mask, Q_indices), where P_mask is a mask indicating which points of P are kept,
             and Q_indices is the filtered indices array
     """
     tree = spatial.KDTree(Q.features.T)
@@ -41,9 +43,12 @@ def outlier_filter(P, Q, indices, tau: float = 0.25):
     errors = Q.features[:, match] - P.features
     dist_err = np.linalg.norm(errors, axis=0)
 
-    mask = (dist_err < tau)
+    if tau is not None:
+        mask = (dist_err < tau)
+    else:
+        mask = np.ones_like(dist_err, dtype=int)
 
-    return mask, indices[mask]
+    return dist, mask, indices[mask]
 
 
 def error_minimizer(P, Q, indices, P_mask):
@@ -53,7 +58,7 @@ def error_minimizer(P, Q, indices, P_mask):
     :param Q: a 2D point cloud in homogeneous coordinates (3 x m), where m is the number of points.
     :param indices: an array representing the misalignment between two point clouds.
     :param P_mask: points to keep in P
-    :return: a 2D rigid transformation matrix.
+    :return: a 2D rigid transformation matrix that moves P to Q
     """
     assert P.features.shape[0] == 3, "only support 2D points in homogenous coords"
     assert P.descriptors.shape[0] == 2, "descriptor must be normal"
@@ -81,7 +86,24 @@ def error_minimizer(P, Q, indices, P_mask):
 
 # TODO add tolerance parameter
 # TODO try torch differentiable icp
-def icp(P, Q, nb_iter=5, init_pose=None, inspect=None, tau_filter=0.25):
+def icp(P: PointCloud,
+        Q: PointCloud,
+        nb_iter: int,
+        init_pose: Optional[np.ndarray]=None,
+        tau_filter: Optional[float]=None,
+        min_error_delta: Optional[float]=None,
+        inspect: Optional[IcpInspector] = None) -> np.ndarray:
+    """
+    Point-to-Plane ICP algorithm
+    :param P: source point cloud
+    :param Q: destination point cloud
+    :param nb_iter: maximum number of iteration of the ICP algorithm
+    :param init_pose: initial guess on the transformation from P to Q
+    :param tau_filter: filter out match that are more than `tau_filter` units from each other
+    :param min_error_delta: Stop when the error stops improving by more than `min_error_delta`
+    :param inspect: IcpInspector to plot
+    :return: Transformation matrix from P to Q
+    """
     # initial guess
     if init_pose is not None:
         T = np.copy(init_pose)
@@ -89,24 +111,27 @@ def icp(P, Q, nb_iter=5, init_pose=None, inspect=None, tau_filter=0.25):
         T = np.eye(3)
 
     # preprocessing
-    # TODO move preprocessing outside icp algorithm
-    # p_keep = int(P.features.shape[1] )
-    # q_keep = int(P.features.shape[1] * 0.75)
-    # P = furthest_point_sampling_decimate(P, p_keep, skip_initial=True)
-    # Q = furthest_point_sampling_decimate(Q, q_keep, skip_initial=True)
-    P = make_descriptors(P, 20, compute_normals=True)
-    Q = make_descriptors(Q, 20, compute_normals=True)
+    P = make_normal_descriptors(P, 20)
+    Q = make_normal_descriptors(Q, 20)
 
     P_prime = copy(P)
 
     # iterative optimization
+    previous_error = 0
     for i in range(nb_iter):
         # move our reading point cloud
         P_prime.features = T @ P.features
 
         indices = matching(P_prime, Q)
-        P_mask, indices = outlier_filter(P_prime, Q, indices, tau_filter)
+        distances, P_mask, indices = outlier_filter(P_prime, Q, indices, tau_filter)
         T_iter = error_minimizer(P_prime, Q, indices, P_mask)
+
+        # check error
+        if min_error_delta is not None:
+            mean_error = np.average(distances)
+            if abs(previous_error - mean_error) < min_error_delta:
+                break
+            previous_error = mean_error
 
         # for plotting later
         if inspect is not None:
@@ -129,7 +154,7 @@ def icp(P, Q, nb_iter=5, init_pose=None, inspect=None, tau_filter=0.25):
 
 
 if __name__ == '__main__':
-    from r2_lidar_icp.draw_utils import IcpInspector, draw_point_clouds
+    from r2_lidar_icp.draw_utils import draw_point_clouds
 
     # generating the reading point cloud
     # angle_p = np.random.uniform(-0.1, 0.1)
@@ -147,7 +172,7 @@ if __name__ == '__main__':
     inspector = IcpInspector()
 
     # calling your iterative closest point algorithm
-    T = icp(P, Q, nb_iter=5, inspect=inspector, tau_filter=1000)
+    T = icp(P, Q, nb_iter=5, tau_filter=100, inspect=inspector)
 
     # ------------------------------------
     # plotting results
