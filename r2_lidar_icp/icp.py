@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 from scipy import spatial
 
 from r2_lidar_icp.point_cloud import PointCloud
-from r2_lidar_icp.preprocessing import furthest_point_sampling_decimate, make_descriptors
-from r2_lidar_icp.utils import build_room, rigid_transformation
+from r2_lidar_icp.preprocessing import make_descriptors
+from r2_lidar_icp.utils import rigid_transformation
 
 
 def matching(P, Q):

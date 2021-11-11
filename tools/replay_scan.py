@@ -5,9 +5,9 @@ import pickle
 import cv2.cv2 as cv2
 import numpy as np
 
-from tools.visualize_point_cloud import draw_point_cloud
+from r2_lidar_icp.draw_utils import draw_point_cloud_cv2
+from r2_lidar_icp.point_cloud import PointCloud
 
-# TODO refactor with PointCloud
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Replay a lidar scan sequence')
     parser.add_argument('scans_path', help='Scan folder')
@@ -23,15 +23,9 @@ if __name__ == '__main__':
     for i, scan in enumerate(sorted(list(scans_paths))):
         img = np.zeros((window_size, window_size, 3), dtype=np.uint8)
         scan = pickle.load(open(scan, 'rb'))
+        pc = PointCloud.from_scan(scan)
 
-        qualities, angles, distances = scan[:, 0], scan[:, 1], scan[:, 2]
-        angles = np.deg2rad(angles)
-
-        xs = np.cos(angles) * distances
-        ys = np.sin(angles) * distances
-
-        pc = np.stack((xs, ys))
-        draw_point_cloud(pc, img, window_size, (255, 255, 0))
+        draw_point_cloud_cv2(pc, img, window_size, (255, 255, 0))
 
         cv2.imshow(window, img)
         key = cv2.waitKey(100)
