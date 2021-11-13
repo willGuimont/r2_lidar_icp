@@ -4,8 +4,8 @@ from typing import Union
 import numpy as np
 from scipy import spatial
 
-from r2_lidar_icp.sampling import furthest_point_sampling
-from r2_lidar_icp.utils import point_to_homogeneous, homogeneous_to_points, sorted_eig
+from r2_lidar_icp.backup.sampling import furthest_point_sampling
+from r2_lidar_icp.backup.utils import point_to_homogeneous, homogeneous_to_points, sorted_eig
 
 
 class PointCloud:

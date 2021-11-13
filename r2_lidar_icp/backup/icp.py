@@ -6,9 +6,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import spatial
 
-from r2_lidar_icp.draw_utils import IcpInspector
-from r2_lidar_icp.point_cloud import PointCloud
-from r2_lidar_icp.utils import rigid_transformation
+from r2_lidar_icp.backup.draw_utils import IcpInspector
+from r2_lidar_icp.backup.point_cloud import PointCloud
+from r2_lidar_icp.backup.utils import rigid_transformation
 
 
 def matching(P, Q):
@@ -148,7 +148,7 @@ def icp(P: PointCloud,
 
 
 if __name__ == '__main__':
-    from r2_lidar_icp.draw_utils import draw_point_clouds
+    from r2_lidar_icp.backup.draw_utils import draw_point_clouds
 
     # generating the reading point cloud
     # angle_p = np.random.uniform(-0.1, 0.1)

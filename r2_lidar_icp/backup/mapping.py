@@ -6,9 +6,9 @@ import time
 import numpy as np
 from cv2 import cv2
 
-from r2_lidar_icp.draw_utils import draw_point_cloud_cv2
-from r2_lidar_icp.icp import icp
-from r2_lidar_icp.point_cloud import PointCloud
+from r2_lidar_icp.backup.draw_utils import draw_point_cloud_cv2
+from r2_lidar_icp.backup.icp import icp
+from r2_lidar_icp.backup.point_cloud import PointCloud
 
 
 def mapping(pc_map: PointCloud,
