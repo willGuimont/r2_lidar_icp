@@ -28,17 +28,23 @@ def main(scans, show):
         window_icp = "point cloud"
         window_size = 750
         cv2.namedWindow(window_map)
+        cv2.namedWindow(window_icp)
 
     nb_iter = 50
     tau_filter = 100
     min_error_delta = 0.001
-    points_to_keep = 250
+    points_to_keep = 300
+    normal_knn = 20
 
     start_time = time.time()
     pc_map = PointCloud.from_scan(scans[0])
     init_pose = np.eye(3)
     for i, scan in enumerate(scans):
         pc = PointCloud.from_scan(scan)
+
+        # preprocessing
+        pc.compute_normal_descriptor(k_nn=normal_knn)
+        pc_map.compute_normal_descriptor(k_nn=normal_knn)
 
         pc_map, pc_to_map = mapping(pc_map, pc, nb_iter, init_pose, tau_filter, min_error_delta)
         pc_map = pc_map.subsample(points_to_keep)

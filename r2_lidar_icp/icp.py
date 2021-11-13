@@ -8,7 +8,7 @@ from scipy import spatial
 
 from r2_lidar_icp.draw_utils import IcpInspector
 from r2_lidar_icp.point_cloud import PointCloud
-from r2_lidar_icp.utils import rigid_transformation, sorted_eig
+from r2_lidar_icp.utils import rigid_transformation
 
 
 def matching(P, Q):
@@ -60,7 +60,6 @@ def error_minimizer(P, Q, indices, P_mask):
     :return: a 2D rigid transformation matrix that moves P to Q
     """
     assert P.features.shape[0] == 3, "only support 2D points in homogenous coords"
-    assert P.descriptors.shape[0] == 2, "descriptor must be normal"
 
     kept_P_features = P.features[:, P_mask]
     nb_pts = kept_P_features.shape[1]
@@ -71,7 +70,7 @@ def error_minimizer(P, Q, indices, P_mask):
 
     for i in range(nb_pts):
         q_id = indices[i]
-        n = Q.descriptors[:, q_id]
+        n = Q.normals[:, q_id]
         p = kept_P_features[:, i]
         e = errors[:, i]
         h[i] = np.dot(e, n)
@@ -81,30 +80,6 @@ def error_minimizer(P, Q, indices, P_mask):
 
     x = np.linalg.solve(G @ G.T, G @ h)  # this gives: [x, y, theta]
     return rigid_transformation(x)
-
-
-def make_normal_descriptors(point_cloud: PointCloud, k_nn: int) -> PointCloud:
-    pc = copy(point_cloud)
-
-    point_dim = pc.features.shape[0] - 1  # exclude homogeneous coordinate
-
-    # compute knn using KDTree
-    tree = spatial.KDTree(pc.features.T)
-    dist, indices = tree.query(pc.features.T, k=k_nn)
-
-    normals = np.zeros([point_dim, pc.features.shape[1]])
-
-    for i, nn_i in enumerate(indices):
-        neighbors = pc.features[:point_dim, nn_i]  # TODO filter points that are too far away
-        mu = np.mean(neighbors, axis=1)
-        errors = (neighbors.T - mu).T
-        cov = 1 / k_nn * (errors @ errors.T)
-        eigen_values, eigen_vectors = sorted_eig(cov)
-        normals[:, i] = eigen_vectors[:, 0]  # smallest eigen vector
-
-    pc.descriptors = normals
-
-    return pc
 
 
 # TODO add tolerance parameter
@@ -132,10 +107,6 @@ def icp(P: PointCloud,
         T = np.copy(init_pose)
     else:
         T = np.eye(3)
-
-    # preprocessing
-    P = make_normal_descriptors(P, 20)
-    Q = make_normal_descriptors(Q, 20)
 
     P_prime = copy(P)
 
@@ -207,7 +178,7 @@ if __name__ == '__main__':
 
     ax = axs[1]
     ax.set_title("After registration")
-    draw_point_clouds(ax, P=inspector.P[-1].features, Q=inspector.Q.features, normals_Q=inspector.Q.descriptors, T=T)
+    draw_point_clouds(ax, P=inspector.P[-1].features, Q=inspector.Q.features, normals_Q=inspector.Q.normals, T=T)
 
     fig.tight_layout()
     fig.show()
