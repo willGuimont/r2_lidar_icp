@@ -17,9 +17,6 @@ class Matcher(ABC):
 
 
 class MatcherType(ABC):
-    def __init__(self):
-        ...
-
     @abstractmethod
     def make_matcher(self, reference: PointCloud) -> Matcher:
         ...

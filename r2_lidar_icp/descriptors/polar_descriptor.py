@@ -9,12 +9,6 @@ class PolarDescriptor(Descriptor):
     RadiusIndex = 0
     AngleIndex = 0
 
-    def __init__(self):
-        """
-        Adds the distance to the closest neighbor in the map of each point
-        """
-        super().__init__()
-
     def compute_descriptor(self, pc: PointCloud):
         xs = pc.features[0, :]
         ys = pc.features[1, :]

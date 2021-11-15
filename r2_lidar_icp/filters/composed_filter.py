@@ -9,7 +9,6 @@ from r2_lidar_icp.filters.filter import Filter
 
 class ComposedFilter(Filter):
     def __init__(self, filters: List[Filter]):
-        super().__init__()
         self.filters = filters
 
     def compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:

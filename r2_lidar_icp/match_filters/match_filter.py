@@ -5,9 +5,6 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class MatchFilter(ABC):
-    def __init__(self):
-        ...
-
     @abstractmethod
     def compute_mask(self, pc: PointCloud, matches: Matches):
         ...

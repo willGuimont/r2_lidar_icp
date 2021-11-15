@@ -1,6 +1,4 @@
 class Map:
+    # TODO
     def __init__(self):
-        """
-        uses ICP to build a map
-        """
         ...

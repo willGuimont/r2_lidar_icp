@@ -5,10 +5,6 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 class OutlierMatchFilter(MatchFilter):
     def __init__(self, max_distance: float):
-        """
-        Filters out outliers
-        """
-        super().__init__()
         self.max_distance = max_distance
 
     def compute_mask(self, pc: PointCloud, matches: Matches):

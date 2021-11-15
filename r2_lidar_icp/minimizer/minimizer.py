@@ -7,12 +7,6 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class Minimizer(ABC):
-    def __init__(self):
-        """
-        TODO
-        """
-        ...
-
     @abstractmethod
     def find_transformation(self,
                             reference: PointCloud,

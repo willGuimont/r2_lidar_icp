@@ -14,7 +14,6 @@ class FurthestPointSamplingFilter(Filter):
                  initial_idx: Optional[int] = None,
                  metric: Callable[[np.ndarray, np.ndarray], float] = l2_norm,
                  skip_initial: bool = False):
-        super().__init__()
         self.k = k
         self.initial_idx = initial_idx
         self.metric = metric

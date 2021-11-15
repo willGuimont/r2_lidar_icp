@@ -7,7 +7,6 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 class KDTreeMatcher(Matcher):
     def __init__(self, tree: KDTree):
-        super().__init__()
         self.tree = tree
 
     def query(self, pc: PointCloud, knn: int) -> (np.ndarray, np.ndarray):

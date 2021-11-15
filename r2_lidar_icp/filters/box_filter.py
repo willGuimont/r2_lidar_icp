@@ -9,10 +9,6 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 class BoxFilter(Filter):
     def __init__(self, min_x: float, min_y: float, max_x: float, max_y: float):
-        """
-        Filters out points outside of a box
-        """
-        super().__init__()
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x

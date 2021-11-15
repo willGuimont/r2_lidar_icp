@@ -105,7 +105,6 @@ class ICP:
 
         self.transformation_checker.begin()
         while True:
-            # TODO move into PointCloud?
             reading_prime.features = T @ reading.features
 
             matches = matcher.match(reading_prime)
@@ -114,7 +113,7 @@ class ICP:
 
             T = T_iter @ T
 
-            if self.transformation_checker.is_finished(copy(reference), reading):
+            if self.transformation_checker.is_finished(copy(reference), reading, matches):
                 break
 
         return T
