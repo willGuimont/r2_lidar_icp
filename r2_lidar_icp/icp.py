@@ -113,7 +113,7 @@ class ICP:
 
             T = T_iter @ T
 
-            if self.transformation_checker.is_finished(copy(reference), reading, matches):
+            if self.transformation_checker.is_finished(reference, reading, matches):
                 break
 
         return T
@@ -138,8 +138,6 @@ if __name__ == '__main__':
     icp_builder = ICPBuilder().with_match_filter(OutlierMatchFilter(100))
     icp = icp_builder.build()
     T = icp.find_transformation(reference, reading)
-    print(reference.descriptors['NormalDescriptor'].shape)
-    print(reference.features.shape)
 
     # Post-ICP
     ax = axs[1]
