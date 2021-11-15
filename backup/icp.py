@@ -6,9 +6,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy import spatial
 
-from r2_lidar_icp.backup.draw_utils import IcpInspector
-from r2_lidar_icp.backup.point_cloud import PointCloud
-from r2_lidar_icp.backup.utils import rigid_transformation
+from backup.draw_utils import IcpInspector
+from backup.point_cloud import PointCloud
+from backup.utils import rigid_transformation
 
 
 def matching(P, Q):
@@ -120,6 +120,9 @@ def icp(P: PointCloud,
         distances, P_mask, indices = outlier_filter(P_prime, Q, indices, tau_filter)
         T_iter = error_minimizer(P_prime, Q, indices, P_mask)
 
+        # chain transformations
+        T = T_iter @ T
+
         # check error
         if min_error_delta is not None:
             mean_error = np.average(distances)
@@ -134,9 +137,6 @@ def icp(P: PointCloud,
             else:
                 inspect.append(P_prime, T, indices)
 
-        # chain transformations
-        T = T_iter @ T
-
     # for plotting later
     if inspect is not None:
         # one last time to apply the last transformation
@@ -148,19 +148,21 @@ def icp(P: PointCloud,
 
 
 if __name__ == '__main__':
-    from r2_lidar_icp.backup.draw_utils import draw_point_clouds
+    from backup.draw_utils import draw_point_clouds
 
     # generating the reading point cloud
     # angle_p = np.random.uniform(-0.1, 0.1)
     # P = PointCloud()
     # P.features = build_room([1.2, 2.], [2.2, 1.5], angle=angle_p, nb_pts=390)
     P = PointCloud.from_scan(pickle.load(open('data/pi/test1/00000.pkl', 'rb')))
+    P.compute_normal_descriptor(20)
 
     # generating the reference point cloud
     # angle_q = np.random.uniform(-0.1, 0.1)
     # Q = PointCloud()
     # Q.features = build_room([1.8, 2.], [2.8, 2.2], angle=angle_q, nb_pts=450)
     Q = PointCloud.from_scan(pickle.load(open('data/pi/test1/00050.pkl', 'rb')))
+    Q.compute_normal_descriptor(20)
 
     # an inspector to plot results
     inspector = IcpInspector()

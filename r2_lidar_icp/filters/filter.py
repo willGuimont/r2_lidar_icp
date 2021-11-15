@@ -1,18 +1,20 @@
 from abc import ABC, abstractmethod
+from typing import Dict
 
+import numpy as np
+
+from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class Filter(ABC):
     def __init__(self):
-        """
-        Filters out points
-        """
         ...
 
     @abstractmethod
-    def keep_indices(self, pc: PointCloud):
+    def compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
         ...
 
-    def filter(self, pc: PointCloud):
-        ...
+    def filter(self, pc: PointCloud, descriptors: Dict[str, Descriptor]):
+        mask = self.compute_mask(pc, descriptors)
+        pc.apply_mask(mask)

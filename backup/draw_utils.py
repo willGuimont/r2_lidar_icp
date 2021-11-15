@@ -5,8 +5,8 @@ from cv2 import cv2
 from matplotlib import animation, pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from r2_lidar_icp.backup.point_cloud import PointCloud
-from r2_lidar_icp.backup.utils import build_parallelepiped
+from backup.point_cloud import PointCloud
+from backup.utils import build_parallelepiped
 
 
 def draw_base_vector(ax, head, text="", origin=np.array([0., 0.]), text_offset=np.array([0., 0.]), color="tab:red",

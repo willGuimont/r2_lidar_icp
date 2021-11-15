@@ -4,8 +4,8 @@ import cv2.cv2 as cv2
 import numpy as np
 from rplidar import RPLidar
 
-from r2_lidar_icp.backup.draw_utils import draw_point_cloud_cv2
-from r2_lidar_icp.backup.point_cloud import PointCloud
+from backup.draw_utils import draw_point_cloud_cv2
+from backup.point_cloud import PointCloud
 
 if __name__ == '__main__':
     lidar = RPLidar('/dev/ttyUSB0')

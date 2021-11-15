@@ -1,10 +1,39 @@
+from copy import copy
+from typing import Dict
+
 import numpy as np
+
+from r2_lidar_icp.utils.utils import point_to_homogeneous
 
 
 class PointCloud:
     def __init__(self, features: np.ndarray):
         self.features = features
         self.descriptors = dict()
+
+    def get_descriptor(self, descriptor_name: str, descriptors: Dict[str, 'Descriptor']):
+        if descriptor_name not in self.descriptors:
+            if descriptor_name not in descriptors:
+                raise RuntimeError(f'Descriptor {descriptor_name} was not computed and is not in descriptors')
+            descriptor = descriptors[descriptor_name]
+            descriptor.compute_descriptor(self)
+        return self.descriptors[descriptor_name]
+
+    def add_descriptor(self, descriptor: 'Descriptor', value):
+        self.descriptors[descriptor.name] = value
+
+    def apply_mask(self, mask: np.ndarray):
+        self.features = self.features[:, mask]
+        for k, v in self.descriptors.items():
+            self.descriptors[k] = v[:, mask]
+
+    def __copy__(self):
+        pc = PointCloud(copy(self.features))
+
+        for k, v in self.descriptors.items():
+            pc.descriptors[k] = copy(v)
+
+        return pc
 
     @classmethod
     def from_scan(cls, scan) -> 'PointCloud':
@@ -17,17 +46,8 @@ class PointCloud:
         ys = np.sin(angles) * distances
 
         features = np.stack([xs, ys])
-        features = cls._point_to_homogeneous(features)
+        features = point_to_homogeneous(features)
 
         pc = PointCloud(features)
 
         return pc
-
-    @staticmethod
-    def _point_to_homogeneous(pc: np.ndarray) -> np.ndarray:
-        if pc.shape[0] == 3:
-            return np.copy(pc.T)
-        elif pc.shape[0] == 2:
-            return np.concatenate((pc, np.ones((1, pc.shape[1]))), axis=0)
-        else:
-            raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
