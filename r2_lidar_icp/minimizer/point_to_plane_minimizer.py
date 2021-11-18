@@ -20,7 +20,7 @@ class PointToPlaneMinimizer(Minimizer):
         assert reference.features.shape[0] == 3, "only support 2D points"
 
         distances, indices = matches.distances, matches.indices
-        dim = reading.features.shape[0] - 1
+        dim = reading.dim
         nb_points = reading.features.shape[1]
 
         ref_normals = reference.get_descriptor(NormalDescriptor.name, descriptors)

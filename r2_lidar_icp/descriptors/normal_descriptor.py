@@ -14,7 +14,7 @@ class NormalDescriptor(Descriptor):
         self.matcher_type = matcher_type
 
     def compute_descriptor(self, pc: PointCloud):
-        point_dim = pc.features.shape[0] - 1  # exclude homogeneous coordinate
+        point_dim = pc.dim
 
         matcher = self.matcher_type.make_matcher(pc)
         dist, indices = matcher.query(pc, self.knn)

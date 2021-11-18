@@ -27,6 +27,18 @@ class PointCloud:
         for k, v in self.descriptors.items():
             self.descriptors[k] = v[:, mask]
 
+    @property
+    def dim(self):
+        return self.features.shape[0] - 1
+
+    @property
+    def homogeneous_dim(self):
+        return self.features.shape[0]
+
+    @property
+    def num_points(self):
+        return self.features.shape[1]
+
     def __copy__(self):
         pc = PointCloud(copy(self.features))
 

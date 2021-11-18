@@ -14,6 +14,7 @@ from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcherType
 from r2_lidar_icp.matchers.matcher import MatcherType
 from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.minimizer.point_to_plane_minimizer import PointToPlaneMinimizer
+from r2_lidar_icp.minimizer.point_to_point_minimizer import PointToPointMinimizer
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import MaxIterationTransformationChecker
 from r2_lidar_icp.transformation_checkers.transformation_checker import TransformationChecker
@@ -29,7 +30,7 @@ class ICPBuilder:
         self.matcher_type = KDTreeMatcherType()
         self.match_filter = IdentityMatchFilter()
         self.minimizer = PointToPlaneMinimizer()
-        self.transformation_checker = MaxIterationTransformationChecker(10)
+        self.transformation_checker = MaxIterationTransformationChecker(50)
 
     def with_reference_preprocessing(self, reference_preprocessing: Filter):
         self.reference_preprocessing = reference_preprocessing
@@ -91,7 +92,7 @@ class ICP:
                             reference: PointCloud,
                             reading: PointCloud,
                             init_pose: Optional[np.ndarray] = None) -> np.ndarray:
-        dim = reference.features.shape[0]
+        dim = reference.homogeneous_dim
         if init_pose is not None:
             T = np.copy(init_pose)
         else:
@@ -135,15 +136,19 @@ if __name__ == '__main__':
     draw_point_clouds(ax, P=reading.features, Q=reference.features)
 
     # ICP
-    icp_builder = ICPBuilder().with_match_filter(OutlierMatchFilter(100))
+    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(OutlierMatchFilter(100))
     icp = icp_builder.build()
     T = icp.find_transformation(reference, reading)
+    print(T)
 
     # Post-ICP
     ax = axs[1]
     ax.set_title("After registration")
-    draw_point_clouds(ax, P=T @ reading.features, Q=reference.features,
-                      normals_Q=reference.get_descriptor(NormalDescriptor.name, icp_builder.descriptors), T=T)
+    draw_point_clouds(ax,
+                      P=T @ reading.features,
+                      Q=reference.features,
+                      normals_Q=reference.get_descriptor(NormalDescriptor.name, icp_builder.descriptors),
+                      T=T)
 
     fig.tight_layout()
     fig.show()
