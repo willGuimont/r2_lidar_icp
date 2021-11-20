@@ -12,12 +12,15 @@ class PointCloud:
         self.descriptors = dict()
 
     def get_descriptor(self, descriptor_name: str, descriptors: Dict[str, 'Descriptor']):
+        self.compute_descriptor(descriptor_name, descriptors)
+        return self.descriptors[descriptor_name]
+
+    def compute_descriptor(self, descriptor_name: str, descriptors: Dict[str, 'Descriptor']):
         if descriptor_name not in self.descriptors:
             if descriptor_name not in descriptors:
                 raise RuntimeError(f'Descriptor {descriptor_name} was not computed and is not in descriptors')
             descriptor = descriptors[descriptor_name]
             descriptor.compute_descriptor(self)
-        return self.descriptors[descriptor_name]
 
     def add_descriptor(self, descriptor: 'Descriptor', value):
         self.descriptors[descriptor.name] = value
@@ -26,6 +29,12 @@ class PointCloud:
         self.features = self.features[:, mask]
         for k, v in self.descriptors.items():
             self.descriptors[k] = v[:, mask]
+
+    def add(self, other: 'PointCloud', descriptors: Dict[str, 'Descriptor']):
+        self.features = np.concatenate((self.features, other.features), axis=1)
+        for desc in self.descriptors.keys():
+            other.compute_descriptor(desc, descriptors)
+            self.descriptors[desc] = np.concatenate((self.descriptors[desc], other.descriptors[desc]), axis=1)
 
     @property
     def dim(self):

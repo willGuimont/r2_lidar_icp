@@ -4,21 +4,19 @@ from typing import Optional, Dict
 import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
+from r2_lidar_icp.descriptors.normal_descriptor import NormalDescriptor
 from r2_lidar_icp.descriptors.polar_descriptor import PolarDescriptor
 from r2_lidar_icp.filters.filter import Filter
 from r2_lidar_icp.filters.identity_filter import IdentityFilter
 from r2_lidar_icp.match_filters.identity_match_filter import IdentityMatchFilter
 from r2_lidar_icp.match_filters.match_filter import MatchFilter
-from r2_lidar_icp.match_filters.outlier_match_filter import OutlierMatchFilter
 from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcherType
 from r2_lidar_icp.matchers.matcher import MatcherType
 from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.minimizer.point_to_plane_minimizer import PointToPlaneMinimizer
-from r2_lidar_icp.minimizer.point_to_point_minimizer import PointToPointMinimizer
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import MaxIterationTransformationChecker
 from r2_lidar_icp.transformation_checkers.transformation_checker import TransformationChecker
-from r2_lidar_icp.utils.draw_utils import draw_point_clouds
 
 
 class ICPBuilder:
@@ -123,7 +121,8 @@ class ICP:
 if __name__ == '__main__':
     import pickle
     from matplotlib import pyplot as plt
-    from r2_lidar_icp.descriptors.normal_descriptor import NormalDescriptor
+    from r2_lidar_icp.match_filters.outlier_match_filter import OutlierMatchFilter
+    from r2_lidar_icp.utils.draw_utils import draw_point_clouds
 
     reading = PointCloud.from_scan(pickle.load(open('data/pi/test1/00000.pkl', 'rb')))
     reference = PointCloud.from_scan(pickle.load(open('data/pi/test1/00050.pkl', 'rb')))

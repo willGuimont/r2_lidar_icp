@@ -15,6 +15,6 @@ class ComposedTransformationChecker(TransformationChecker):
 
     def is_finished(self, reference: PointCloud, reading: PointCloud, matches: Matches) -> bool:
         for c in self.checkers:
-            if c.is_finished(reference, reading):
+            if c.is_finished(reference, reading, matches):
                 return True
         return False

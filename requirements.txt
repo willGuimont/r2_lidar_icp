@@ -3,7 +3,6 @@ numpy
 rplidar-roboticia
 matplotlib
 scipy
-# TODO remove dependencies below this line
 opencv-python
 opencv-contrib-python
 git+https://github.com/willGuimont/pipeline
