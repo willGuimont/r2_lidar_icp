@@ -73,9 +73,9 @@ if __name__ == '__main__':
         ErrorDeltaTransformationChecker(0.001)
     ]))
     icp = icp_builder.build()
-    reference_consolidation = FurthestPointSamplingFilter(300, skip_initial=True)
+    reference_maintaining = FurthestPointSamplingFilter(300, skip_initial=True)
     reference_descriptors = dict()
-    mapping = Mapping(icp, first_scan, reference_consolidation, reference_descriptors, last_position=None)
+    mapping = Mapping(icp, first_scan, reference_maintaining, reference_descriptors, last_position=None)
 
     start_time = time.perf_counter()
     for i, scan in enumerate(scans[1:]):
