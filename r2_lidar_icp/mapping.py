@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import Optional, Dict
 
 import numpy as np
 
+from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.filters.filter import Filter
 from r2_lidar_icp.icp import ICP
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
@@ -12,10 +13,12 @@ class Mapping:
                  icp: ICP,
                  reference: PointCloud,
                  reference_consolidation: Filter,
+                 reference_descriptors: Dict[str, Descriptor],
                  last_position: Optional[np.ndarray] = None):
         self.icp = icp
         self.reference = reference
         self.reference_consolidation = reference_consolidation
+        self.reference_descriptors = reference_descriptors
         if last_position is not None:
             self.last_position = last_position
         else:
@@ -33,8 +36,7 @@ class Mapping:
             self.last_position)
 
     def consolidate(self):
-        # TODO handle that some descriptors won't be in icp.descriptors
-        self.reference_consolidation.filter(self.reference, self.icp.descriptors)
+        self.reference_consolidation.filter(self.reference, self.icp.descriptors | self.reference_descriptors)
 
 
 if __name__ == '__main__':
@@ -72,14 +74,17 @@ if __name__ == '__main__':
     ]))
     icp = icp_builder.build()
     reference_consolidation = FurthestPointSamplingFilter(300, skip_initial=True)
-    mapping = Mapping(icp, reference=first_scan, reference_consolidation=reference_consolidation, last_position=None)
+    reference_descriptors = dict()
+    mapping = Mapping(icp, first_scan, reference_consolidation, reference_descriptors, last_position=None)
 
     start_time = time.perf_counter()
     for i, scan in enumerate(scans[1:]):
         reading = PointCloud.from_scan(scan)
         mapping.map(reading)
+        if i % 5 == 0:
+            mapping.consolidate()
 
-    print(f'Duraction: {time.perf_counter() - start_time}')
+    print(f'Duration: {time.perf_counter() - start_time}')
 
     fig, ax = plt.subplots()
     draw_point_clouds(ax, P=mapping.reference.features)
