@@ -12,12 +12,12 @@ class Mapping:
     def __init__(self,
                  icp: ICP,
                  reference: PointCloud,
-                 reference_consolidation: Filter,
+                 reference_maintaining: Filter,
                  reference_descriptors: Dict[str, Descriptor],
                  last_position: Optional[np.ndarray] = None):
         self.icp = icp
         self.reference = reference
-        self.reference_consolidation = reference_consolidation
+        self.reference_maintaining = reference_maintaining
         self.reference_descriptors = reference_descriptors
         if last_position is not None:
             self.last_position = last_position
@@ -35,8 +35,8 @@ class Mapping:
             reading,
             self.last_position)
 
-    def consolidate(self):
-        self.reference_consolidation.filter(self.reference, self.icp.descriptors | self.reference_descriptors)
+    def maintain_reference(self):
+        self.reference_maintaining.filter(self.reference, self.icp.descriptors | self.reference_descriptors)
 
 
 if __name__ == '__main__':
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         reading = PointCloud.from_scan(scan)
         mapping.map(reading)
         if i % 5 == 0:
-            mapping.consolidate()
+            mapping.maintain_reference()
 
     print(f'Duration: {time.perf_counter() - start_time}')
 

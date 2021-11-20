@@ -12,7 +12,7 @@ class TransformationMatrix2D:
         return self
 
     def rotate(self, theta: float) -> 'TransformationMatrix2D':
-        self.transform = self.transform @ self.make_rotation_x(theta)
+        self.transform = self.transform @ self.make_rotation(theta)
         return self
 
     def scale(self, sx: float, sy: Optional[float] = None) -> 'TransformationMatrix2D':
