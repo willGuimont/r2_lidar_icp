@@ -1,8 +1,9 @@
+# TODO refactor into classes to make simulation easier
 import cv2.cv2 as cv2
 import numpy as np
-from backup.point_cloud.diff_icp import point_to_homogeneous
 
-from backup.point_cloud import TransformationMatrix
+from r2_lidar_icp.utils.transformation_matrix import TransformationMatrix2D
+from r2_lidar_icp.utils.utils import point_to_homogeneous
 
 
 def line_line_intersection(p1, p2, p3, p4):
@@ -38,7 +39,9 @@ walls = np.array([
     [[obstacle_size, obstacle_size], [-obstacle_size, obstacle_size]],
     [[-obstacle_size, obstacle_size], [-obstacle_size, -obstacle_size]],
 ])
-robot_pos = np.array([0., -5])
+robot_pos = np.zeros((2, 1))
+robot_pos[0, 0] = 0
+robot_pos[1, 0] = 5
 robot_yaw = 0
 lidar_range = 15
 num_beam = 32
@@ -48,7 +51,7 @@ window = "lidar"
 window_size = 500
 cv2.namedWindow(window)
 scale = 10
-world_to_win = TransformationMatrix() \
+world_to_win = TransformationMatrix2D() \
     .translate(window_size / 2, window_size / 2) \
     .scale(scale) \
     .build()
@@ -58,11 +61,11 @@ robot_radius = 10
 
 
 def line_to_window(line):
-    return (world_to_win @ point_to_homogeneous(line))[:2].astype(int)
+    return (world_to_win @ point_to_homogeneous(line.T))[:2].astype(int)
 
 
 def point_to_window(pt):
-    return (world_to_win @ point_to_homogeneous(np.array([pt])))[:2].astype(int)[:, 0]
+    return (world_to_win @ point_to_homogeneous(pt))[:2].astype(int)[:, 0]
 
 
 if __name__ == '__main__':

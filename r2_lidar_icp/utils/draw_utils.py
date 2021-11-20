@@ -1,4 +1,7 @@
 import numpy as np
+from cv2 import cv2
+
+from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 def draw_base_vector(ax,
@@ -54,3 +57,13 @@ def draw_point_clouds(ax, P=None, Q=None, normals_P=None, normals_Q=None, errors
     ax.set_xlabel(r"$\vec{\mathscr{x}}$")
     ax.set_ylabel(r"$\vec{\mathscr{y}}$")
     ax.set_aspect('equal', adjustable='box')
+
+
+def draw_point_cloud_cv2(pc: PointCloud, img, size: int, color: (int, int, int), scaling_factor=10_000, offset=(0, 0)):
+    assert pc.features.shape[0] == 3, "only works with 2d points"
+    tmp = np.copy(pc.features)
+    tmp = tmp / tmp[2, :]
+    for (x, y) in tmp[:2, :].T:
+        x = int(x / scaling_factor * size + size / 2) + offset[0]
+        y = int(y / scaling_factor * size + size / 2) + offset[1]
+        cv2.circle(img, (x, y), 3, color, -1)
