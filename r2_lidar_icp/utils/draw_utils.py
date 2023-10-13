@@ -1,5 +1,5 @@
 import numpy as np
-from cv2 import cv2
+import cv2
 
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 

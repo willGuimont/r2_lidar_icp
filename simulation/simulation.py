@@ -1,5 +1,5 @@
 # TODO refactor into classes to make simulation easier
-import cv2.cv2 as cv2
+import cv2
 import numpy as np
 
 from r2_lidar_icp.utils.transformation_matrix import TransformationMatrix2D

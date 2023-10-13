@@ -2,7 +2,7 @@ import argparse
 import pathlib
 import pickle
 
-import cv2.cv2 as cv2
+import cv2
 import numpy as np
 
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
