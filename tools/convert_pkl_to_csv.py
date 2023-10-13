@@ -17,5 +17,5 @@ if __name__ == '__main__':
 
     for i, scan_path in enumerate(sorted(list(scans_paths))):
         scan = pickle.load(open(scan_path, 'rb'))
-        file_path = out_path.joinpath(f'{i:06d}.npy')
-        np.save(file_path, scan)
+        file_path = out_path.joinpath(f'{i:06d}.csv')
+        np.savetxt(file_path, scan, delimiter=',')
