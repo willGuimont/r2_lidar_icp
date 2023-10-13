@@ -40,11 +40,11 @@ walls = np.array([
     [[-obstacle_size, obstacle_size], [-obstacle_size, -obstacle_size]],
 ])
 robot_pos = np.zeros((2, 1))
-robot_pos[0, 0] = 0
+robot_pos[0, 0] = 5
 robot_pos[1, 0] = 5
 robot_yaw = 0
-lidar_range = 15
-num_beam = 32
+lidar_range = 20
+num_beam = 64
 
 # gui stuff
 window = "lidar"
@@ -56,7 +56,6 @@ world_to_win = TransformationMatrix2D() \
     .scale(scale) \
     .build()
 win_to_world = np.linalg.inv(world_to_win)
-visual_lidar_range = lidar_range * scale
 robot_radius = 10
 
 
@@ -83,8 +82,8 @@ if __name__ == '__main__':
         intersections = []
         for i in range(num_beam):
             theta = robot_yaw + i * 2 * np.pi / num_beam
-            lidar_end_x, lidar_end_y = np.cos(theta) * lidar_range + robot_pos[0] + robot_pos[0], \
-                                       np.sin(theta) * lidar_range + robot_pos[1] + robot_pos[1]
+            lidar_end_x, lidar_end_y = np.cos(theta) * lidar_range + robot_pos[0], \
+                                       np.sin(theta) * lidar_range + robot_pos[1]
             line = robot_pos, np.array([lidar_end_x, lidar_end_y])
             best_inter = None
             smallest_distance = np.inf

@@ -68,10 +68,8 @@ if __name__ == '__main__':
 
     icp_builder = ICPBuilder(). \
         with_match_filter(OutlierMatchFilter(100)). \
-        with_transformation_checker(ComposedTransformationChecker([
-        MaxIterationTransformationChecker(50),
-        ErrorDeltaTransformationChecker(0.001)
-    ]))
+        with_transformation_checker(ComposedTransformationChecker([MaxIterationTransformationChecker(50),
+                                                                   ErrorDeltaTransformationChecker(0.001)]))
     icp = icp_builder.build()
     reference_maintaining = FurthestPointSamplingFilter(300, skip_initial=True)
     reference_descriptors = dict()
