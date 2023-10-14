@@ -14,6 +14,7 @@ from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcherType
 from r2_lidar_icp.matchers.matcher import MatcherType
 from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.minimizer.point_to_plane_minimizer import PointToPlaneMinimizer
+from r2_lidar_icp.minimizer.point_to_point_minimizer import PointToPointMinimizer
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import MaxIterationTransformationChecker
 from r2_lidar_icp.transformation_checkers.transformation_checker import TransformationChecker

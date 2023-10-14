@@ -8,6 +8,7 @@ from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
+# TODO debug this and validate
 class PointToPointMinimizer(Minimizer):
     """
     Point to point minimizer.
