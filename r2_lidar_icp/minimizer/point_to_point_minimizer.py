@@ -9,11 +9,12 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class PointToPointMinimizer(Minimizer):
-    # https://github.com/norlab-ulaval/glo4001/blob/master/robmob/icp.py
-    def find_transformation(self,
-                            reference: PointCloud,
-                            reading: PointCloud,
-                            matches: Matches,
+    """
+    Point to point minimizer.
+    Inspired by https://github.com/norlab-ulaval/glo4001/blob/master/robmob/icp.py
+    """
+
+    def find_transformation(self, point_cloud: PointCloud, reference: PointCloud, matches: Matches,
                             descriptors: Dict[str, Descriptor]):
         dim = reference.dim
         distances, indices = matches.distances, matches.indices
@@ -21,7 +22,7 @@ class PointToPointMinimizer(Minimizer):
         num_points = indices.shape[0]
         A = np.zeros((num_points, 3))
         B = np.zeros((num_points, 3))
-        A[:, :dim] = reading.features[:dim, :].T
+        A[:, :dim] = point_cloud.features[:dim, :].T
         B[:, :dim] = reference.features[:dim, indices].T
 
         # translate points to their centroids

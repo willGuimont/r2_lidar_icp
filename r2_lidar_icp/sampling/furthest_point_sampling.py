@@ -15,10 +15,10 @@ def furthest_point_sampling(pts: np.ndarray,
     """
     Furthest point sampling algorithm
     :param pts: np.ndarray of dimension DxN, where N is the number of points and D the dimension each points
-    :param k: number of points to sample
-    :param initial_idx: index to start the sampling from, random if None
-    :param metric: metric function to calculate distance
-    :param skip_initial: skip the first furthest point, stabilizes the output
+    :param k: Number of points to sample
+    :param initial_idx: Index to start the sampling from, random if None
+    :param metric: Metric function to calculate distance
+    :param skip_initial: Skip the first furthest point, stabilizes the output
     :return: (indices, distances), indices = sampled points
     """
     dim, num_points = pts.shape

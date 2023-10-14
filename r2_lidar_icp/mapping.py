@@ -15,6 +15,14 @@ class Mapping:
                  reference_maintaining: Filter,
                  reference_descriptors: Dict[str, Descriptor],
                  last_position: Optional[np.ndarray] = None):
+        """
+        Mapping using ICP.
+        :param icp: ICP algorithm
+        :param reference: reference point cloud
+        :param reference_maintaining: reference maintaining filter. Used to maintain the size of the reference point cloud
+        :param reference_descriptors: reference descriptors
+        :param last_position: last position of the reading
+        """
         self.icp = icp
         self.reference = reference
         self.reference_maintaining = reference_maintaining
@@ -24,18 +32,29 @@ class Mapping:
         else:
             self.last_position = np.identity(reference.homogeneous_dim)
 
-    def map(self, reading: PointCloud):
-        self.last_position = self.localize(reading)
-        reading_in_reference = PointCloud(self.last_position @ reading.features)
-        self.reference.add(reading_in_reference, self.icp.descriptors)
+    def map(self, point_cloud: PointCloud):
+        """
+        Add a new point cloud to the map.
+        :param point_cloud: point cloud to add
+        :return: None
+        """
+        self.last_position = self.localize(point_cloud)
+        reading_in_reference = PointCloud(self.last_position @ point_cloud.features)
+        self.reference.union(reading_in_reference, self.icp.descriptors)
 
-    def localize(self, reading) -> np.ndarray:
-        return self.icp.find_transformation(
-            self.reference,
-            reading,
-            self.last_position)
+    def localize(self, point_cloud: PointCloud) -> np.ndarray:
+        """
+        Find the transformation between the reading and the reference.
+        :param point_cloud: Point cloud to localize
+        :return: transformation matrix
+        """
+        return self.icp.find_transformation(point_cloud, self.reference, self.last_position)
 
     def maintain_reference(self):
+        """
+        Housekeeping of the reference point cloud.
+        :return: None
+        """
         self.reference_maintaining.filter(self.reference, self.icp.descriptors | self.reference_descriptors)
 
 

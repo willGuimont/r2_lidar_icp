@@ -5,6 +5,9 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class PolarDescriptor(Descriptor):
+    """
+    Descriptor that adds polar coordinates to the point cloud.
+    """
     name = 'PolarDescriptor'
     RadiusIndex = 0
     AngleIndex = 0

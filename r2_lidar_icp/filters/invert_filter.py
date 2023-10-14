@@ -9,7 +9,11 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 class InvertFilter(Filter):
     def __init__(self, base_filter: Filter):
+        """
+        Invert the mask of a filter.
+        :param base_filter: Filter to invert.
+        """
         self.base_filter = base_filter
 
-    def compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
-        return np.bitwise_not(self.base_filter.compute_mask(pc, descriptors))
+    def _compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
+        return np.bitwise_not(self.base_filter._compute_mask(pc, descriptors))

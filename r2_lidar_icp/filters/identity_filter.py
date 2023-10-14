@@ -8,5 +8,9 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 
 class IdentityFilter(Filter):
-    def compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
+    """
+    Identity filter. Does not filter any points.
+    """
+
+    def _compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
         return np.full(pc.features.shape[1], True)

@@ -1,5 +1,5 @@
-import numpy as np
 import cv2
+import numpy as np
 
 from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
@@ -18,8 +18,6 @@ def draw_base_vector(ax,
     ax.annotate("", xy=head_global, xytext=origin,
                 arrowprops=dict(arrowstyle="->,head_width=0.6, head_length=1", color=color, lw=2))
     ax.text(text_global[0], text_global[1], text, size=30, color=color, ha=ha, va=va)
-
-    return
 
 
 def draw_frame(ax,

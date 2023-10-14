@@ -9,9 +9,13 @@ from r2_lidar_icp.point_cloud.point_cloud import PointCloud
 
 class ComposedFilter(Filter):
     def __init__(self, filters: List[Filter]):
+        """
+        Compose multiple filters into one.
+        :param filters: List of filters to compose.
+        """
         self.filters = filters
 
-    def compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
+    def _compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
         ...
 
     def filter(self, pc: PointCloud, descriptors: Dict[str, Descriptor]):

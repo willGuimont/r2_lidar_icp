@@ -10,6 +10,11 @@ class NormalDescriptor(Descriptor):
     name = 'NormalDescriptor'
 
     def __init__(self, knn: int, matcher_type: MatcherType):
+        """
+        Approximate the normal at each point.
+        :param knn: Number of nearest neighbors to use.
+        :param matcher_type: Matcher to use to find nearest neighbors.
+        """
         self.knn = knn
         self.matcher_type = matcher_type
 
@@ -17,7 +22,7 @@ class NormalDescriptor(Descriptor):
         point_dim = pc.dim
 
         matcher = self.matcher_type.make_matcher(pc)
-        dist, indices = matcher.query(pc, self.knn)
+        dist, indices = matcher._query(pc, self.knn)
 
         normals = np.zeros((point_dim, pc.features.shape[1]))
 

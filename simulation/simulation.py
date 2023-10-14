@@ -109,7 +109,7 @@ if __name__ == '__main__':
         # robot
         cv2.circle(img, (robot_pos_window[0], robot_pos_window[1]), robot_radius, (255, 0, 255), -1)
         robot_front_x, robot_front_y = int(np.cos(robot_yaw) * robot_radius + robot_pos_window[0]), \
-                                       int(np.sin(robot_yaw) * robot_radius + robot_pos_window[1])
+            int(np.sin(robot_yaw) * robot_radius + robot_pos_window[1])
         cv2.line(img, (robot_pos_window[0], robot_pos_window[1]), (robot_front_x, robot_front_y), (255, 0, 0), 2)
 
         # points

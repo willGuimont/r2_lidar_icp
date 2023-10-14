@@ -21,6 +21,10 @@ from r2_lidar_icp.transformation_checkers.transformation_checker import Transfor
 
 class ICPBuilder:
     def __init__(self):
+        """
+        Builder for ICP algorithm.
+        Allows to configure the different components of the algorithm.
+        """
         self.descriptors = dict(PolarDescriptor=PolarDescriptor(),
                                 NormalDescriptor=NormalDescriptor(knn=20, matcher_type=KDTreeMatcherType()))
         self.reference_preprocessing = IdentityFilter()
@@ -31,30 +35,64 @@ class ICPBuilder:
         self.transformation_checker = MaxIterationTransformationChecker(50)
 
     def with_reference_preprocessing(self, reference_preprocessing: Filter):
+        """
+        Set the reference preprocessing pipeline
+        :param reference_preprocessing: reference preprocessing pipeline
+        :return: self
+        """
         self.reference_preprocessing = reference_preprocessing
         return self
 
     def with_reading_preprocessing(self, reading_preprocessing: Filter):
+        """
+        Set the reading preprocessing pipeline
+        :param reading_preprocessing: reading preprocessing pipeline
+        :return: self
+        """
         self.reading_preprocessing = reading_preprocessing
         return self
 
     def with_matcher_type(self, matcher_type: MatcherType):
+        """
+        Set the matcher type. Will be used to build the matcher
+        :param matcher_type: matcher type
+        :return: self
+        """
         self.matcher_type = matcher_type
         return self
 
     def with_match_filter(self, match_filter: MatchFilter):
+        """
+        Set the match filter.
+        :param match_filter: match filter
+        :return: self
+        """
         self.match_filter = match_filter
         return self
 
     def with_minimizer(self, minimizer: Minimizer):
+        """
+        Set the minimizer.
+        :param minimizer: minimizer
+        :return: self
+        """
         self.minimizer = minimizer
         return self
 
     def with_transformation_checker(self, transformation_checker: TransformationChecker):
+        """
+        Set the transformation checker.
+        :param transformation_checker: transformation checker
+        :return: self
+        """
         self.transformation_checker = transformation_checker
         return self
 
     def build(self):
+        """
+        Build the ICP algorithm
+        :return: ICP algorithm
+        """
         return ICP(self.descriptors,
                    self.reference_preprocessing,
                    self.reading_preprocessing,
@@ -77,6 +115,13 @@ class ICP:
         ICP algorithm. The basic flow is that we apply corresponding preprocessing pipelines to both the reference and
         reading `PointCloud`. Then we start the iterative loop: Compute matches, filter out outliers, find the
         minimizing transformation, then continue depending on the output of `transformation_checker`
+        :param descriptors: descriptors to use
+        :param reference_preprocessing: reference preprocessing pipeline
+        :param reading_preprocessing: reading preprocessing pipeline
+        :param matcher_type: matcher type
+        :param match_filter: match filter
+        :param minimizer: minimizer
+        :param transformation_checker: transformation checker
         """
         self.descriptors = descriptors
         self.reference_preprocessing = reference_preprocessing
@@ -86,10 +131,15 @@ class ICP:
         self.minimizer = minimizer
         self.transformation_checker = transformation_checker
 
-    def find_transformation(self,
-                            reference: PointCloud,
-                            reading: PointCloud,
+    def find_transformation(self, point_cloud: PointCloud, reference: PointCloud,
                             init_pose: Optional[np.ndarray] = None) -> np.ndarray:
+        """
+        Find the transformation between the reference and the reading.
+        :param point_cloud: PointCloud to register
+        :param reference: Reference PointCloud
+        :param init_pose: Initial pose
+        :return: transformation matrix
+        """
         dim = reference.homogeneous_dim
         if init_pose is not None:
             T = np.copy(init_pose)
@@ -97,22 +147,22 @@ class ICP:
             T = np.identity(dim)
 
         self.reference_preprocessing.filter(reference, self.descriptors)
-        self.reading_preprocessing.filter(reading, self.descriptors)
+        self.reading_preprocessing.filter(point_cloud, self.descriptors)
 
-        reading_prime = copy(reading)
+        reading_prime = copy(point_cloud)
         matcher = self.matcher_type.make_matcher(reference)
 
         self.transformation_checker.begin()
         while True:
-            reading_prime.features = T @ reading.features
+            reading_prime.features = T @ point_cloud.features
 
             matches = matcher.match(reading_prime)
             self.match_filter.filter_matches(reading_prime, matches)
-            T_iter = self.minimizer.find_transformation(reference, reading_prime, matches, self.descriptors)
+            T_iter = self.minimizer.find_transformation(reading_prime, reference, matches, self.descriptors)
 
             T = T_iter @ T
 
-            if self.transformation_checker.is_finished(reference, reading, matches):
+            if self.transformation_checker.is_finished(point_cloud, reference, matches):
                 break
 
         return T
@@ -137,7 +187,7 @@ if __name__ == '__main__':
     # ICP
     icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(OutlierMatchFilter(100))
     icp = icp_builder.build()
-    T = icp.find_transformation(reference, reading)
+    T = icp.find_transformation(reading, reference)
     print(T)
 
     # Post-ICP
