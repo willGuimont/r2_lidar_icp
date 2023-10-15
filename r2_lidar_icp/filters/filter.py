@@ -4,9 +4,10 @@ from typing import Dict
 import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
+# TODO add &, |, ~ operators to filters
 class Filter(ABC):
     """
     Base class for filters. Filters will remove points from the point cloud based on some criteria.

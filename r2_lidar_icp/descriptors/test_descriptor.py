@@ -4,8 +4,8 @@ import numpy as np
 
 from r2_lidar_icp.descriptors.normal_descriptor import NormalDescriptor
 from r2_lidar_icp.descriptors.polar_descriptor import PolarDescriptor
-from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcherType
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcher
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class DescriptorTest(unittest.TestCase):
@@ -17,7 +17,7 @@ class DescriptorTest(unittest.TestCase):
         zz = -xx - yy
         scan = np.stack((xx.flatten(), yy.flatten(), zz.flatten()))
 
-        descriptor = NormalDescriptor(knn=5, matcher_type=KDTreeMatcherType())
+        descriptor = NormalDescriptor(knn=5, matcher_cls=KDTreeMatcher)
         point_cloud = PointCloud.from_cartesian_scan(scan)
         descriptor.compute_descriptor(point_cloud)
 

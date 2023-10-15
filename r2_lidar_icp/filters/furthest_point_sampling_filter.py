@@ -4,7 +4,7 @@ import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.filters.filter import Filter
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 from r2_lidar_icp.sampling.furthest_point_sampling import l2_norm, furthest_point_sampling
 
 
@@ -30,6 +30,6 @@ class FurthestPointSamplingFilter(Filter):
 
     def _compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
         mask = np.full(pc.features.shape[1], False)
-        indices, _ = furthest_point_sampling(pc.features, self.k, self.initial_idx, self.metric, self.skip_initial)
+        _, indices = furthest_point_sampling(pc.features, self.k, self.initial_idx, self.metric, self.skip_initial)
         mask[indices] = True
         return mask

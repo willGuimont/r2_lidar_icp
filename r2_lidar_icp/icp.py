@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Optional, Dict
+from typing import Optional, Dict, Type
 
 import numpy as np
 
@@ -10,11 +10,11 @@ from r2_lidar_icp.filters.filter import Filter
 from r2_lidar_icp.filters.identity_filter import IdentityFilter
 from r2_lidar_icp.match_filters.identity_match_filter import IdentityMatchFilter
 from r2_lidar_icp.match_filters.match_filter import MatchFilter
-from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcherType
-from r2_lidar_icp.matchers.matcher import MatcherType
+from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcher
+from r2_lidar_icp.matchers.matcher import Matcher
 from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.minimizer.point_to_plane_minimizer import PointToPlaneMinimizer
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import MaxIterationTransformationChecker
 from r2_lidar_icp.transformation_checkers.transformation_checker import TransformationChecker
 
@@ -26,10 +26,10 @@ class ICPBuilder:
         Allows to configure the different components of the algorithm.
         """
         self.descriptors = dict(PolarDescriptor=PolarDescriptor(),
-                                NormalDescriptor=NormalDescriptor(knn=20, matcher_type=KDTreeMatcherType()))
+                                NormalDescriptor=NormalDescriptor(knn=20, matcher_cls=KDTreeMatcher))
         self.reference_preprocessing = IdentityFilter()
         self.reading_preprocessing = IdentityFilter()
-        self.matcher_type = KDTreeMatcherType()
+        self.matcher_cls = KDTreeMatcher
         self.match_filter = IdentityMatchFilter()
         self.minimizer = PointToPlaneMinimizer()
         self.transformation_checker = MaxIterationTransformationChecker(50)
@@ -52,13 +52,13 @@ class ICPBuilder:
         self.reading_preprocessing = reading_preprocessing
         return self
 
-    def with_matcher_type(self, matcher_type: MatcherType):
+    def with_matcher(self, matcher_cls: Type[Matcher]):
         """
         Set the matcher type. Will be used to build the matcher
-        :param matcher_type: matcher type
+        :param matcher_cls: matcher type
         :return: self
         """
-        self.matcher_type = matcher_type
+        self.matcher_cls = matcher_cls
         return self
 
     def with_match_filter(self, match_filter: MatchFilter):
@@ -96,18 +96,19 @@ class ICPBuilder:
         return ICP(self.descriptors,
                    self.reference_preprocessing,
                    self.reading_preprocessing,
-                   self.matcher_type,
+                   self.matcher_cls,
                    self.match_filter,
                    self.minimizer,
                    self.transformation_checker)
 
 
+# TODO test this
 class ICP:
     def __init__(self,
                  descriptors: Dict[str, Descriptor],
                  reference_preprocessing: Filter,
                  reading_preprocessing: Filter,
-                 matcher_type: MatcherType,
+                 matcher_cls: Type[Matcher],
                  match_filter: MatchFilter,
                  minimizer: Minimizer,
                  transformation_checker: TransformationChecker):
@@ -118,7 +119,7 @@ class ICP:
         :param descriptors: descriptors to use
         :param reference_preprocessing: reference preprocessing pipeline
         :param reading_preprocessing: reading preprocessing pipeline
-        :param matcher_type: matcher type
+        :param matcher_cls: matcher type
         :param match_filter: match filter
         :param minimizer: minimizer
         :param transformation_checker: transformation checker
@@ -126,7 +127,7 @@ class ICP:
         self.descriptors = descriptors
         self.reference_preprocessing = reference_preprocessing
         self.reading_preprocessing = reading_preprocessing
-        self.matcher_type = matcher_type
+        self.matcher_cls = matcher_cls
         self.match_filter = match_filter
         self.minimizer = minimizer
         self.transformation_checker = transformation_checker
@@ -150,7 +151,7 @@ class ICP:
         self.reading_preprocessing.filter(point_cloud, self.descriptors)
 
         reading_prime = copy(point_cloud)
-        matcher = self.matcher_type.make_matcher(reference)
+        matcher = self.matcher_cls.make_matcher(reference)
 
         self.transformation_checker.begin()
         while True:
@@ -171,7 +172,7 @@ class ICP:
 if __name__ == '__main__':
     import pickle
     from matplotlib import pyplot as plt
-    from r2_lidar_icp.match_filters.outlier_match_filter import OutlierMatchFilter
+    from r2_lidar_icp.match_filters.max_distance_match_filter import MaxDistanceMatchFilter
     from r2_lidar_icp.utils.draw_utils import draw_point_clouds
 
     reading = PointCloud.from_rplidar_scan(pickle.load(open('data/pi/test1/00000.pkl', 'rb')))
@@ -185,7 +186,7 @@ if __name__ == '__main__':
     draw_point_clouds(ax, P=reading.features, Q=reference.features)
 
     # ICP
-    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(OutlierMatchFilter(100))
+    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(MaxDistanceMatchFilter(100))
     icp = icp_builder.build()
     T = icp.find_transformation(reading, reference)
     print(T)

@@ -1,7 +1,7 @@
 import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class PolarDescriptor(Descriptor):
@@ -11,7 +11,7 @@ class PolarDescriptor(Descriptor):
     """
     name = 'PolarDescriptor'
     RadiusIndex = 0
-    AngleIndex = 0
+    AngleIndex = 1
 
     def compute_descriptor(self, pc: PointCloud):
         xs = pc.features[0, :]

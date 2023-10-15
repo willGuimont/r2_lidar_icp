@@ -5,9 +5,10 @@ import numpy as np
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.filters.filter import Filter
 from r2_lidar_icp.icp import ICP
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
+# TODO test this
 class Mapping:
     def __init__(self,
                  icp: ICP,
@@ -19,7 +20,8 @@ class Mapping:
         Mapping using ICP.
         :param icp: ICP algorithm
         :param reference: reference point cloud
-        :param reference_maintaining: reference maintaining filter. Used to maintain the size of the reference point cloud
+        :param reference_maintaining: reference maintaining filter. Used to maintain the size of
+            the reference point cloud
         :param reference_descriptors: reference descriptors
         :param last_position: last position of the reading
         """
@@ -67,7 +69,7 @@ if __name__ == '__main__':
     from matplotlib import pyplot as plt
 
     from r2_lidar_icp.icp import ICPBuilder
-    from r2_lidar_icp.match_filters.outlier_match_filter import OutlierMatchFilter
+    from r2_lidar_icp.match_filters.max_distance_match_filter import MaxDistanceMatchFilter
     from r2_lidar_icp.filters.furthest_point_sampling_filter import FurthestPointSamplingFilter
     from r2_lidar_icp.transformation_checkers.composed_transformation_checker import ComposedTransformationChecker
     from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import \
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     first_scan = PointCloud.from_rplidar_scan(scans[0])
 
     icp_builder = ICPBuilder(). \
-        with_match_filter(OutlierMatchFilter(100)). \
+        with_match_filter(MaxDistanceMatchFilter(100)). \
         with_transformation_checker(ComposedTransformationChecker([MaxIterationTransformationChecker(50),
                                                                    ErrorDeltaTransformationChecker(0.001)]))
     icp = icp_builder.build()

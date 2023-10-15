@@ -5,7 +5,7 @@ import numpy as np
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.matchers.matches import Matches
 from r2_lidar_icp.minimizer.minimizer import Minimizer
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 # TODO debug this and validate

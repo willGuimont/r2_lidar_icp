@@ -4,26 +4,20 @@ import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.filters.filter import Filter
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class BoxFilter(Filter):
-    def __init__(self, min_x: float, min_y: float, max_x: float, max_y: float):
+    def __init__(self, min_corner: np.ndarray, max_corner: np.ndarray):
         """
-        Filter points outside of a box.
-        :param min_x: minimum x value to keep
-        :param min_y: minimum y value to keep
-        :param max_x: maximum x value to keep
-        :param max_y: maximum y value to keep
+        Filter out points outside a box defined by two points.
+        :param min_corner: Minimum point of the box of shape (dim,).
+        :param max_corner: Maximum point of the box of shape (dim,).
         """
-        self.min_x = min_x
-        self.min_y = min_y
-        self.max_x = max_x
-        self.max_y = max_y
+        self.min_corner = min_corner.reshape((-1, 1))
+        self.max_corner = max_corner.reshape((-1, 1))
 
     def _compute_mask(self, pc: PointCloud, descriptors: Dict[str, Descriptor]) -> np.ndarray:
-        xs = pc.features[0, :]
-        ys = pc.features[1, :]
-        in_x_range = np.bitwise_and(self.min_x < xs, xs < self.max_x)
-        in_y_range = np.bitwise_and(self.min_y < ys, ys < self.max_y)
-        return np.bitwise_and(in_x_range, in_y_range)
+        position = pc.features[:3, :]
+        in_range = np.bitwise_and(self.min_corner < position, position < self.max_corner).all(axis=0)
+        return in_range

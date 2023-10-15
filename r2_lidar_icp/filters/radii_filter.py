@@ -5,13 +5,13 @@ import numpy as np
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.descriptors.polar_descriptor import PolarDescriptor
 from r2_lidar_icp.filters.filter import Filter
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class RadiiFilter(Filter):
     def __init__(self, min_r: float, max_r: float):
         """
-        Filter points inside of a range of radii.
+        Filter points inside a range of radii in the xy plane.
         :param min_r: Minimum distance to keep
         :param max_r: Maximum distance to keep
         """

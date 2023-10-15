@@ -1,9 +1,9 @@
 from r2_lidar_icp.match_filters.match_filter import MatchFilter
 from r2_lidar_icp.matchers.matches import Matches
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
-class OutlierMatchFilter(MatchFilter):
+class MaxDistanceMatchFilter(MatchFilter):
     def __init__(self, max_distance: float):
         """
         Filter matches based on distance.

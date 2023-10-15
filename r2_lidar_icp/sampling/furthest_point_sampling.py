@@ -3,6 +3,7 @@ from typing import Optional, Callable
 import numpy as np
 
 
+# TODO move to utils
 def l2_norm(x: np.ndarray, y: np.ndarray):
     return ((x - y) ** 2).sum(axis=0)
 
@@ -14,12 +15,12 @@ def furthest_point_sampling(pts: np.ndarray,
                             skip_initial: bool = False) -> (np.ndarray, np.ndarray):
     """
     Furthest point sampling algorithm
-    :param pts: np.ndarray of dimension DxN, where N is the number of points and D the dimension each points
+    :param pts: Array of shape (dim, num_points)
     :param k: Number of points to sample
     :param initial_idx: Index to start the sampling from, random if None
     :param metric: Metric function to calculate distance
     :param skip_initial: Skip the first furthest point, stabilizes the output
-    :return: (indices, distances), indices = sampled points
+    :return: (distances, indices), indices = sampled points
     """
     dim, num_points = pts.shape
     indices = np.zeros((k,), dtype=int)
@@ -43,7 +44,7 @@ def furthest_point_sampling(pts: np.ndarray,
         dist = metric(furthest_point[:, None], pts)
         distances[:] = dist
         min_distances = np.minimum(min_distances, dist)
-    return indices, distances
+    return distances, indices
 
 
 if __name__ == '__main__':
@@ -55,11 +56,10 @@ if __name__ == '__main__':
     y = np.sin(t) * 2
     pts = np.stack((x, y), axis=1) + np.random.random((x.shape[0], 2))
     pts = pts.T
-    print(pts.shape)
-    indices, distances = furthest_point_sampling(pts, k, skip_initial=True)
+    distances, indices = furthest_point_sampling(pts, k, skip_initial=True)
     reduced = pts[:, indices]
 
-    print(f'Reduced {x.shape[0]} points with {k} points')
+    print(f'Reduced {x.shape[0]} points to {k} points')
 
     plt.scatter(pts[0, :], pts[1, :], c='r')
     plt.scatter(reduced[0, :], reduced[1, :], c='b', marker='x')

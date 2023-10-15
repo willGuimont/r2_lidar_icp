@@ -20,8 +20,8 @@ class PointCloud:
     def from_cartesian_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
         """
         Create a point cloud from a scan and convert it to homogeneous coordinates
-        :param scan: a numpy array of shape (2, n) or (3, n) where n is the number of points, the first column is the x coordinate
-                     and the second column is the y coordinate, the third column is the z coordinate
+        :param scan: a numpy array of shape (2, n) or (3, n) where n is the number of points, the first column is
+            the x coordinate and the second column is the y coordinate, the third column is the z coordinate
         :return: Point cloud
         """
         scan = np.array(scan)
@@ -32,13 +32,13 @@ class PointCloud:
     def from_polar_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
         """
         Create a point cloud from a scan and convert it to homogeneous coordinates
-        :param scan: a numpy array of shape (3, n) where n is the number of points, the first row is the quality,
-                     the second row is the angle and the third row is the distance
+        :param scan: a numpy array of shape (2, n) where n is the number of points,
+                     the first row is the angle and the second row is the distance
         :return: Point cloud
         """
         scan = np.array(scan)
 
-        qualities, angles, distances = scan[0, :], scan[1, :], scan[2, :]
+        angles, distances = scan[0, :], scan[1, :]
         angles = np.deg2rad(angles)
 
         xs = np.cos(angles) * distances
@@ -54,11 +54,16 @@ class PointCloud:
     @classmethod
     def from_rplidar_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
         """
-        Same as from_polar_scan but with a different order of the rows
-        :param scan: a numpy array of shape (n, 3) where n is the number of points, the first row is the distance,
+        Same as from_polar_scan but with a different order of the rows.
+        Automatically add the intensity (signal return strength) as a descriptor.
+        :param scan: a numpy array of shape (3, n) where n is the number of points, the first row is the intensity,
+                     the second row is the angle and the third row is the distance
         :return: Point cloud
         """
-        return cls.from_polar_scan(np.array(scan).T)
+        intensity = np.array(scan).T[0][None, :]
+        pc = cls.from_polar_scan(np.array(scan).T[1:, :])
+        pc.add_descriptor_by_name('IntensityDescriptor', intensity)
+        return pc
 
     def get_descriptor(self, descriptor_name: str, descriptors: Dict[str, 'Descriptor']):
         """
@@ -91,6 +96,15 @@ class PointCloud:
         :return: None
         """
         self.descriptors[descriptor.name] = value
+
+    def add_descriptor_by_name(self, name: str, value):
+        """
+        Add a descriptor to the point cloud
+        :param name: Name of the descriptor
+        :param value: Value of the descriptor
+        :return: None
+        """
+        self.descriptors[name] = value
 
     def apply_mask(self, mask: np.ndarray):
         """

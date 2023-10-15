@@ -5,6 +5,15 @@ r2_lidar_icp is a simple Python implementation of the ICP algorithm aimed to be 
 
 [r2_lidar_icp in action](https://youtu.be/9I7yZk28Vi0?si=otcAcv2YrVtqMob7)
 
+## Pipeline for ICP
+- Preprocess (downsample, filter, compute descriptors, etc.)
+- While not converged
+  - Find matches
+  - Reject outlier matches
+  - Compute transformation
+  - Transform point cloud
+- Return transformation
+
 ## TODO
 - [ ] Add tests
 - [ ] Add 3D support for PointToPlaneMinimizer

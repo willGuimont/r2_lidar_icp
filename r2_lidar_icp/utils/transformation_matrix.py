@@ -11,12 +11,11 @@ class TransformationMatrix2D:
         """
         self.transform = np.eye(3)
 
-    def translate(self, x: float, y: float, z: float = 0) -> 'TransformationMatrix2D':
+    def translate(self, x: float, y: float) -> 'TransformationMatrix2D':
         """
-        Translate the transformation matrix by x, y, z.
+        Translate the transformation matrix by x, y.
         :param x: x
         :param y: y
-        :param z: z
         :return: self
         """
         self.transform = self.transform @ self.make_translation_xy(x, y)
@@ -78,8 +77,8 @@ class TransformationMatrix2D:
         :param angle: angle in radians
         :return: rotation matrix
         """
-        c = np.math.cos(angle)
-        s = np.math.sin(angle)
+        c = np.cos(angle)
+        s = np.sin(angle)
         return np.array([[c, -s, 0],
                          [s, c, 0],
                          [0, 0, 1]])
@@ -118,7 +117,7 @@ class TransformationMatrix3D:
 
     def rotate_x(self, theta: float) -> 'TransformationMatrix3D':
         """
-        Rotate the transformation matrix by theta around the x axis.
+        Rotate the transformation matrix by theta around the x-axis.
         :param theta: theta in radians
         :return: self
         """
@@ -127,7 +126,7 @@ class TransformationMatrix3D:
 
     def rotate_y(self, theta: float) -> 'TransformationMatrix3D':
         """
-        Rotate the transformation matrix by theta around the y axis.
+        Rotate the transformation matrix by theta around the-y axis.
         :param theta: theta in radians
         :return: self
         """
@@ -196,8 +195,8 @@ class TransformationMatrix3D:
         :param radian_angle_around_x: angle in radians
         :return: rotation matrix
         """
-        c = np.math.cos(radian_angle_around_x)
-        s = np.math.sin(radian_angle_around_x)
+        c = np.cos(radian_angle_around_x)
+        s = np.sin(radian_angle_around_x)
         return np.array([[1, 0, 0, 0],
                          [0, c, -s, 0],
                          [0, s, c, 0],
@@ -210,8 +209,8 @@ class TransformationMatrix3D:
         :param radian_angle_around_y: angle in radians
         :return: rotation matrix
         """
-        c = np.math.cos(radian_angle_around_y)
-        s = np.math.sin(radian_angle_around_y)
+        c = np.cos(radian_angle_around_y)
+        s = np.sin(radian_angle_around_y)
         return np.array(
             [[c, 0, s, 0],
              [0, 1, 0, 0],
@@ -225,8 +224,8 @@ class TransformationMatrix3D:
         :param radian_angle_around_z: angle in radians
         :return: rotation matrix
         """
-        c = np.math.cos(radian_angle_around_z)
-        s = np.math.sin(radian_angle_around_z)
+        c = np.cos(radian_angle_around_z)
+        s = np.sin(radian_angle_around_z)
         return np.array(
             [[-c, -s, 0, 0],
              [s, c, 0, 0],

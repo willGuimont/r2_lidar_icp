@@ -1,14 +1,14 @@
-from typing import List, Dict
+from typing import Dict
 
 import numpy as np
 
 from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.filters.filter import Filter
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class ComposedFilter(Filter):
-    def __init__(self, filters: List[Filter]):
+    def __init__(self, *filters: Filter):
         """
         Compose multiple filters into one.
         :param filters: List of filters to compose.

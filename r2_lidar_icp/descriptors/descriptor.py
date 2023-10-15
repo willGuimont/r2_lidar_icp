@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from r2_lidar_icp.point_cloud.point_cloud import PointCloud
+from r2_lidar_icp.point_cloud import PointCloud
 
 
 class Descriptor(ABC):

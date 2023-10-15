@@ -6,3 +6,4 @@ scipy
 opencv-python
 opencv-contrib-python
 git+https://github.com/willGuimont/pipeline
+rplidar
