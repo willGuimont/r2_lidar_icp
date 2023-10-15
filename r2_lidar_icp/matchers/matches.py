@@ -5,15 +5,15 @@ import numpy as np
 
 @dataclass
 class Matches:
-    def __init__(self, distances: np.ndarray, indices: np.ndarray):
+    def __init__(self, distances: np.ndarray, from_indices: np.ndarray, indices: np.ndarray):
         """
         Matches between two point clouds.
-        :param distances: distances[i] is the distance between the ith point in the query point cloud and its nearest
-            neighbor in the reference point cloud.
-        :param indices: indices[i] is the index of the nearest neighbor of the ith point in the query point cloud in
-            the reference point cloud.
+        :param distances: array of shape (num_points, num_neighbors), of distances between each point in the query
+        :param from_indices: array of shape (num_points, 1), of indices of the points in the query point cloud
+        :param indices: array of shape (num_points, num_neighbors), of indices of the neighbors in the reference point
         """
         self.distances = distances
+        self.from_indices = from_indices
         self.indices = indices
 
     def apply_mask(self, mask: np.ndarray):
@@ -23,4 +23,13 @@ class Matches:
         :return: None
         """
         self.distances = self.distances[mask]
+        self.from_indices = self.from_indices[mask]
         self.indices = self.indices[mask]
+
+    @property
+    def best_distances(self):
+        return self.distances[:, [0]]
+
+    @property
+    def best_indices(self):
+        return self.indices[:, [0]]

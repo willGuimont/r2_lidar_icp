@@ -157,6 +157,7 @@ class ICP:
         while True:
             reading_prime.features = T @ point_cloud.features
 
+            # TODO use knn>1 to allow for more match filters
             matches = matcher.match(reading_prime)
             self.match_filter.filter_matches(reading_prime, matches)
             T_iter = self.minimizer.find_transformation(reading_prime, reference, matches, self.descriptors)

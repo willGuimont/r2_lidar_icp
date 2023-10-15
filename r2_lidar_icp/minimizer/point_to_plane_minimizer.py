@@ -21,13 +21,13 @@ class PointToPlaneMinimizer(Minimizer):
         # TODO add support for 3D points
         assert reference.features.shape[0] == 3, "only support 2D points"
 
-        distances, indices = matches.distances, matches.indices
+        distances, from_indices, indices = matches.distances, matches.from_indices, matches.indices
         dim = point_cloud.dim
         nb_points = point_cloud.features.shape[1]
 
         ref_normals = reference.get_descriptor(NormalDescriptor.name, descriptors)
 
-        errors = reference.features[:2, indices] - point_cloud.features[:2, :]
+        errors = reference.features[:2, indices] - point_cloud.features[:2, from_indices]
         h = np.empty(nb_points)
         G = np.empty((dim + 1, nb_points))
 

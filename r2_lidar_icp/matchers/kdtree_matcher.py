@@ -28,4 +28,7 @@ class KDTreeMatcher(Matcher):
                  indices is of shape (num_points, knn), where indices[i, j] is the index of the jth nearest neighbor
                     of the ith point in the query point cloud in the reference point cloud.
         """
-        return self.tree.query(pc.features.T, k=knn)
+        distances, indices = self.tree.query(pc.features.T, k=knn)
+        distances = distances.reshape(-1, knn)
+        indices = indices.reshape(-1, knn)
+        return distances, indices

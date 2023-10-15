@@ -2,10 +2,7 @@ from typing import Optional, Callable
 
 import numpy as np
 
-
-# TODO move to utils
-def l2_norm(x: np.ndarray, y: np.ndarray):
-    return ((x - y) ** 2).sum(axis=0)
+from r2_lidar_icp.utils.utils import l2_norm
 
 
 def furthest_point_sampling(pts: np.ndarray,
