@@ -23,7 +23,7 @@ if __name__ == '__main__':
     for i, scan in enumerate(sorted(list(scans_paths))):
         img = np.zeros((window_size, window_size, 3), dtype=np.uint8)
         scan = pickle.load(open(scan, 'rb'))
-        pc = PointCloud.from_scan(scan)
+        pc = PointCloud.from_rplidar_scan(scan)
 
         draw_point_cloud_cv2(pc, img, window_size, (255, 255, 0))
 

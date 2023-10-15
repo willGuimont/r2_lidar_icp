@@ -18,16 +18,11 @@ def sorted_eig(A: np.ndarray):
 def point_to_homogeneous(pc: np.ndarray):
     """
     Convert a point cloud to homogeneous coordinates
-    :param pc: point cloud
+    :param pc: point cloud (3, n)
     :return: homogeneous coordinates
     """
-    if pc.shape[0] == 3:
-        return np.copy(pc.T)
-    elif pc.shape[0] == 2:
-        cp = np.copy(pc)
-        return np.concatenate((cp, np.ones((1, cp.shape[1]))), axis=0)
-    else:
-        raise ValueError(f'{pc.shape} is an invalide shape, expected Nx3 or Nx4')
+    cp = np.copy(pc)
+    return np.concatenate((cp, np.ones((1, cp.shape[1]))), axis=0)
 
 
 def rigid_transformation(params):

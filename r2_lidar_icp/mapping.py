@@ -83,7 +83,7 @@ if __name__ == '__main__':
     scans_paths = sorted(list(scans_path.iterdir()))
     scans = [pickle.load(open(scan_path, 'rb')) for scan_path in scans_paths]
 
-    first_scan = PointCloud.from_scan(scans[0])
+    first_scan = PointCloud.from_rplidar_scan(scans[0])
 
     icp_builder = ICPBuilder(). \
         with_match_filter(OutlierMatchFilter(100)). \
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     start_time = time.perf_counter()
     for i, scan in enumerate(scans[1:]):
-        reading = PointCloud.from_scan(scan)
+        reading = PointCloud.from_rplidar_scan(scan)
         mapping.map(reading)
         if i % 5 == 0:
             mapping.maintain_reference()

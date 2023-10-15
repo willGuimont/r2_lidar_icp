@@ -15,7 +15,7 @@ if __name__ == '__main__':
     cv2.namedWindow(window)
     for i, scan in enumerate(lidar.iter_scans()):
         img = np.zeros((window_size, window_size, 3), dtype=np.uint8)
-        pc = PointCloud.from_scan(scan)
+        pc = PointCloud.from_rplidar_scan(scan)
 
         draw_point_cloud_cv2(pc, img, window_size, (255, 255, 0))
 

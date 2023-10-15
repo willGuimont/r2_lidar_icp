@@ -44,6 +44,7 @@ class PointToPlaneMinimizer(Minimizer):
         # TODO use transformation matrix instead?
         return rigid_transformation(x)
 
+    # TODO move to utils
     @staticmethod
     def _cross_product(p, n, dim):
         """

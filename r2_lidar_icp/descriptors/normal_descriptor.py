@@ -20,11 +20,12 @@ class NormalDescriptor(Descriptor):
 
     def compute_descriptor(self, pc: PointCloud):
         point_dim = pc.dim
+        num_points = pc.num_points
 
         matcher = self.matcher_type.make_matcher(pc)
         dist, indices = matcher._query(pc, self.knn)
 
-        normals = np.zeros((point_dim, pc.features.shape[1]))
+        normals = np.zeros((point_dim, num_points))
 
         for i, nn_i in enumerate(indices):
             neighbors = pc.features[:point_dim, nn_i]

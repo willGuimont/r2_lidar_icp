@@ -16,6 +16,50 @@ class PointCloud:
         self.features = features
         self.descriptors = dict()
 
+    @classmethod
+    def from_cartesian_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
+        """
+        Create a point cloud from a scan and convert it to homogeneous coordinates
+        :param scan: a numpy array of shape (2, n) or (3, n) where n is the number of points, the first column is the x coordinate
+                     and the second column is the y coordinate, the third column is the z coordinate
+        :return: Point cloud
+        """
+        scan = np.array(scan)
+        features = point_to_homogeneous(scan)
+        return PointCloud(features)
+
+    @classmethod
+    def from_polar_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
+        """
+        Create a point cloud from a scan and convert it to homogeneous coordinates
+        :param scan: a numpy array of shape (3, n) where n is the number of points, the first row is the quality,
+                     the second row is the angle and the third row is the distance
+        :return: Point cloud
+        """
+        scan = np.array(scan)
+
+        qualities, angles, distances = scan[0, :], scan[1, :], scan[2, :]
+        angles = np.deg2rad(angles)
+
+        xs = np.cos(angles) * distances
+        ys = np.sin(angles) * distances
+
+        features = np.stack([xs, ys])
+        features = point_to_homogeneous(features)
+
+        pc = PointCloud(features)
+
+        return pc
+
+    @classmethod
+    def from_rplidar_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
+        """
+        Same as from_polar_scan but with a different order of the rows
+        :param scan: a numpy array of shape (n, 3) where n is the number of points, the first row is the distance,
+        :return: Point cloud
+        """
+        return cls.from_polar_scan(np.array(scan).T)
+
     def get_descriptor(self, descriptor_name: str, descriptors: Dict[str, 'Descriptor']):
         """
         Get a descriptor from the point cloud
@@ -103,27 +147,5 @@ class PointCloud:
 
         for k, v in self.descriptors.items():
             pc.descriptors[k] = copy(v)
-
-        return pc
-
-    @classmethod
-    def from_scan(cls, scan: Union[np.ndarray, List]) -> 'PointCloud':
-        """
-        Create a point cloud from a scan
-        :param scan: a numpy array of shape (n, 3) where n is the number of points
-        :return:
-        """
-        scan = np.array(scan)
-
-        qualities, angles, distances = scan[:, 0], scan[:, 1], scan[:, 2]
-        angles = np.deg2rad(angles)
-
-        xs = np.cos(angles) * distances
-        ys = np.sin(angles) * distances
-
-        features = np.stack([xs, ys])
-        features = point_to_homogeneous(features)
-
-        pc = PointCloud(features)
 
         return pc
