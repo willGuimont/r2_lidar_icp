@@ -11,4 +11,4 @@ class IdentityMatchFilter(MatchFilter):
     """
 
     def _compute_mask(self, pc: PointCloud, matches: Matches):
-        return np.full(pc.features.shape[1], True)
+        return np.full((pc.features.shape[1], 1), True)

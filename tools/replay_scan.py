@@ -16,7 +16,7 @@ if __name__ == '__main__':
     scans_path = pathlib.Path(args.scans_path)
     scans_paths = scans_path.iterdir()
 
-    window = "lidar"
+    window = 'lidar'
     window_size = 750
 
     cv2.namedWindow(window)

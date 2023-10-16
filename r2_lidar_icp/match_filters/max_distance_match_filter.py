@@ -13,4 +13,4 @@ class MaxDistanceMatchFilter(MatchFilter):
         self.max_distance = max_distance
 
     def _compute_mask(self, pc: PointCloud, matches: Matches):
-        return matches.distances < self.max_distance
+        return matches.best_distances < self.max_distance

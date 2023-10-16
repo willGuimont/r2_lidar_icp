@@ -14,6 +14,7 @@ from r2_lidar_icp.matchers.kdtree_matcher import KDTreeMatcher
 from r2_lidar_icp.matchers.matcher import Matcher
 from r2_lidar_icp.minimizer.minimizer import Minimizer
 from r2_lidar_icp.minimizer.point_to_plane_minimizer import PointToPlaneMinimizer
+from r2_lidar_icp.minimizer.point_to_point_minimizer import PointToPointMinimizer
 from r2_lidar_icp.point_cloud import PointCloud
 from r2_lidar_icp.transformation_checkers.max_iteration_transformation_checker import MaxIterationTransformationChecker
 from r2_lidar_icp.transformation_checkers.transformation_checker import TransformationChecker
@@ -32,7 +33,7 @@ class ICPBuilder:
         self.matcher_cls = KDTreeMatcher
         self.match_filter = IdentityMatchFilter()
         self.minimizer = PointToPlaneMinimizer()
-        self.transformation_checker = MaxIterationTransformationChecker(50)
+        self.transformation_checker = MaxIterationTransformationChecker(100)
 
     def with_reference_preprocessing(self, reference_preprocessing: Filter):
         """
@@ -164,7 +165,8 @@ class ICP:
 
             T = T_iter @ T
 
-            if self.transformation_checker.is_finished(point_cloud, reference, matches):
+            mean_error = np.average(matches.distances)
+            if self.transformation_checker.is_finished(mean_error):
                 break
 
         return T
@@ -179,22 +181,35 @@ if __name__ == '__main__':
     reading = PointCloud.from_rplidar_scan(pickle.load(open('data/pi/test1/00000.pkl', 'rb')))
     reference = PointCloud.from_rplidar_scan(pickle.load(open('data/pi/test1/00050.pkl', 'rb')))
 
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 6))
 
     # Pre-ICP
     ax = axs[0]
-    ax.set_title("Before registration")
+    ax.set_title('Before registration')
     draw_point_clouds(ax, P=reading.features, Q=reference.features)
 
-    # ICP
-    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(MaxDistanceMatchFilter(100))
+    # ICP Point to Point
+    icp_builder = ICPBuilder().with_minimizer(PointToPointMinimizer()).with_match_filter(MaxDistanceMatchFilter(200))
     icp = icp_builder.build()
     T = icp.find_transformation(reading, reference)
-    print(T)
 
-    # Post-ICP
+    # Post-ICP Point to Point
     ax = axs[1]
-    ax.set_title("After registration")
+    ax.set_title(f'Point to Point - Loss {icp.transformation_checker.error:.2f}')
+    draw_point_clouds(ax,
+                      P=T @ reading.features,
+                      Q=reference.features,
+                      normals_Q=reference.get_descriptor(NormalDescriptor.name, icp_builder.descriptors),
+                      T=T)
+
+    # ICP Point to Plane
+    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(MaxDistanceMatchFilter(200))
+    icp = icp_builder.build()
+    T = icp.find_transformation(reading, reference)
+
+    # Post-ICP Point to Plane
+    ax = axs[2]
+    ax.set_title(f'Point to Plane - Loss {icp.transformation_checker.error:.2f}')
     draw_point_clouds(ax,
                       P=T @ reading.features,
                       Q=reference.features,

@@ -6,7 +6,6 @@ import numpy as np
 from r2_lidar_icp.utils.utils import point_to_homogeneous
 
 
-# TODO simplify descriptors handling
 class PointCloud:
     def __init__(self, features: np.ndarray):
         """

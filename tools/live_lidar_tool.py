@@ -9,7 +9,7 @@ from r2_lidar_icp.utils.draw_utils import draw_point_cloud_cv2
 
 if __name__ == '__main__':
     lidar = RPLidar('/dev/ttyUSB0')
-    window = "lidar"
+    window = 'lidar'
     window_size = 500
 
     cv2.namedWindow(window)

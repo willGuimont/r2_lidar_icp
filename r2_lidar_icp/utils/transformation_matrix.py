@@ -3,6 +3,7 @@ from typing import Optional
 import numpy as np
 
 
+# TODO test order of transformations
 class TransformationMatrix2D:
     def __init__(self):
         """
@@ -96,6 +97,7 @@ class TransformationMatrix2D:
                          [0, 0, 1]])
 
 
+# TODO test order of transformations
 class TransformationMatrix3D:
     def __init__(self):
         """

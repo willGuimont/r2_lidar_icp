@@ -1,15 +1,13 @@
 from abc import abstractmethod, ABC
 
-from r2_lidar_icp.matchers.matches import Matches
-from r2_lidar_icp.point_cloud import PointCloud
 
-
-# TODO test this
 class TransformationChecker(ABC):
-    """
-    Base class for transformation checkers.
-    Transformation checkers are used to check if the ICP algorithm should stop.
-    """
+    def __init__(self):
+        """
+        Base class for transformation checkers.
+        Transformation checkers are used to check if the ICP algorithm should stop.
+        """
+        self.error = None
 
     def begin(self):
         """
@@ -18,13 +16,21 @@ class TransformationChecker(ABC):
         :return: None
         """
 
+    def is_finished(self, error: float) -> bool:
+        """
+        Called after each iteration of the ICP algorithm.
+        Should be used to update the checker.
+        :param: error: Error between the point cloud and the reference
+        :return: True if the ICP algorithm should stop, False otherwise
+        """
+        self.error = error
+        return self._is_finished_check(error)
+
     @abstractmethod
-    def is_finished(self, point_cloud: PointCloud, reference: PointCloud, matches: Matches) -> bool:
+    def _is_finished_check(self, error: float) -> bool:
         """
         Called after each iteration of the ICP algorithm.
         Should return True if the ICP algorithm should stop.
-        :param point_cloud: Point to register
-        :param reference: Reference point cloud
-        :param matches: Matches between point_cloud and reference
+        :param: error: Error between the point cloud and the reference
         :return: True if the ICP algorithm should stop, False otherwise
         """

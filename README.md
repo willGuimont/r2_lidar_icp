@@ -17,10 +17,13 @@ r2_lidar_icp is a simple Python implementation of the ICP algorithm aimed to be 
 ## TODO
 - [ ] Add tests
 - [ ] Add 3D support for PointToPlaneMinimizer
+- [ ] Profile and optimize (numba, cython, etc.)
 - [ ] Refactor PointCloud to contain its descriptors
 - [ ] Robust kernel
 - [ ] De-skewing using IMU
 - [ ] Dynamic object detection
+- [ ] Diffentiable ICP
+- [ ] Differentiable LiDAR simulator
 - [ ] More filters
   - [libpointmatcher filters](https://libpointmatcher.readthedocs.io/en/latest/DataFilters/#filter-index)
   - [libpointmatcher config](https://libpointmatcher.readthedocs.io/en/latest/Configuration/)

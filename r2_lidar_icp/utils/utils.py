@@ -34,10 +34,26 @@ def rigid_transformation(params):
     :params: numpy array, params[0]=tx, params[1]=ty, params[2]=theta
     :returns: LaTeX bmatrix as a string
     """
-    assert params.shape[0] == 3, "only support 2D points"
+    assert params.shape[0] == 3, 'only support 2D points'
     return np.array([[np.cos(params[2]), -np.sin(params[2]), params[0]],
                      [np.sin(params[2]), np.cos(params[2]), params[1]],
                      [0, 0, 1]])
+
+
+def pseudo_cross_product(p, n, dim):
+    """
+    Wrapper to compute the cross product between a 2D vector and a 3D vector
+    :param p: first vector
+    :param n: second vector
+    :param dim: dimension of the vectors
+    :return: cross product between p and n
+    """
+    if dim == 2:
+        return p[0] * n[1] - p[1] * n[0]  # pseudo-cross product in 2D
+    elif dim == 3:
+        return np.cross(p, n)
+    else:
+        raise ValueError(f'invalid dimension {dim}')
 
 
 def line_line_intersection_2d(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray, p4: np.ndarray) -> Optional[np.ndarray]:

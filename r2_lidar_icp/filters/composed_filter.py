@@ -8,7 +8,7 @@ from r2_lidar_icp.point_cloud import PointCloud
 
 
 class ComposedFilter(Filter):
-    def __init__(self, *filters: Filter):
+    def __init__(self, filters: [Filter]):
         """
         Compose multiple filters into one.
         :param filters: List of filters to compose.

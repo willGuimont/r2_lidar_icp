@@ -22,9 +22,14 @@ class Matches:
         :param mask: Mask to apply.
         :return: None
         """
-        self.distances = self.distances[mask]
-        self.from_indices = self.from_indices[mask]
-        self.indices = self.indices[mask]
+        m = mask[:, 0]
+        self.distances = self.distances[m]
+        self.from_indices = self.from_indices[m]
+        self.indices = self.indices[m]
+
+    @property
+    def num_matches(self):
+        return self.from_indices.shape[0]
 
     @property
     def best_distances(self):

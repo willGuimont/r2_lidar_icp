@@ -104,7 +104,7 @@ if __name__ == '__main__':
     sim = Simulator2D(world)
 
     # GUI
-    window = "lidar"
+    window = 'lidar'
     window_size = 500
     cv2.namedWindow(window)
     scale = 10

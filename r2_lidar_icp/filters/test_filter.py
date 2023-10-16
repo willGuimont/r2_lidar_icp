@@ -39,7 +39,7 @@ class FilterTest(unittest.TestCase):
 
         box_filter_1 = BoxFilter(min_corner_1, max_corner_1)
         box_filter_2 = BoxFilter(min_corner_2, max_corner_2)
-        composed_filter = ComposedFilter(box_filter_1, box_filter_2)
+        composed_filter = ComposedFilter([box_filter_1, box_filter_2])
         composed_filter.filter(pc, {})
 
         self.assertEqual(2, pc.features.shape[1])

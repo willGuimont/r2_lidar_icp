@@ -12,9 +12,9 @@ class MatchFilterTest(unittest.TestCase):
     def test_match_filter(self):
         points = np.random.randint(0, 100, (2, 100))
         pc = PointCloud(points)
-        distances = np.arange(100)
-        from_indices = np.arange(100)
-        indices = np.arange(100)
+        distances = np.arange(100).reshape((100, 1))
+        from_indices = np.arange(100).reshape((100, 1))
+        indices = np.arange(100).reshape((100, 1))
         matches = Matches(distances, from_indices, indices)
 
         match_filter = MaxDistanceMatchFilter(50)
@@ -27,9 +27,9 @@ class MatchFilterTest(unittest.TestCase):
     def test_identity_match_filter(self):
         points = np.random.randint(0, 100, (2, 100))
         pc = PointCloud(points)
-        distances = np.arange(100)
-        from_indices = np.arange(100)
-        indices = np.arange(100)
+        distances = np.arange(100).reshape((100, 1))
+        from_indices = np.arange(100).reshape((100, 1))
+        indices = np.arange(100).reshape((100, 1))
         matches = Matches(distances, from_indices, indices)
 
         match_filter = IdentityMatchFilter()
@@ -41,9 +41,9 @@ class MatchFilterTest(unittest.TestCase):
     def test_max_distance_match_filter(self):
         points = np.random.randint(0, 100, (2, 100))
         pc = PointCloud(points)
-        distances = np.arange(100)
-        from_indices = np.arange(100)
-        indices = np.arange(100)
+        distances = np.arange(100).reshape((100, 1))
+        from_indices = np.arange(100).reshape((100, 1))
+        indices = np.arange(100).reshape((100, 1))
         matches = Matches(distances, from_indices, indices)
 
         match_filter = MaxDistanceMatchFilter(50)
