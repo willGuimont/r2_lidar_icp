@@ -7,7 +7,6 @@ from r2_lidar_icp.descriptors.descriptor import Descriptor
 from r2_lidar_icp.point_cloud import PointCloud
 
 
-# TODO add &, |, ~ operators to filters
 class Filter(ABC):
     """
     Base class for filters. Filters will remove points from the point cloud based on some criteria.
@@ -32,3 +31,11 @@ class Filter(ABC):
         """
         mask = self._compute_mask(pc, descriptors)
         pc.apply_mask(mask)
+
+    def __and__(self, other):
+        from r2_lidar_icp.filters.composed_filter import ComposedFilter
+        return ComposedFilter([self, other])
+
+    def __invert__(self):
+        from r2_lidar_icp.filters.invert_filter import InvertFilter
+        return InvertFilter(self)
