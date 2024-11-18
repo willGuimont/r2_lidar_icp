@@ -203,7 +203,10 @@ if __name__ == '__main__':
                       T=T)
 
     # ICP Point to Plane
-    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer()).with_match_filter(MaxDistanceMatchFilter(200))
+    k = 1000
+    weight_function = lambda d: np.exp(-(d / k) ** 2.0)
+    icp_builder = ICPBuilder().with_minimizer(PointToPlaneMinimizer(weight_function=weight_function)).with_match_filter(
+        MaxDistanceMatchFilter(200))
     icp = icp_builder.build()
     T = icp.find_transformation(reading, reference)
 

@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Dict
 
 import numpy as np
@@ -11,10 +12,12 @@ from r2_lidar_icp.utils.utils import rigid_transformation, pseudo_cross_product
 
 
 class PointToPlaneMinimizer(Minimizer):
-    """
-    Point to plane minimizer.
-    Inspired by https://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
-    """
+    def __init__(self, weight_function: Callable = None):
+        """
+        Point to plane minimizer.
+        Inspired by https://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
+        """
+        self.weight_function = weight_function
 
     # TODO add comments to explain the math behind this
     def find_transformation(self, point_cloud: PointCloud, reference: PointCloud, matches: Matches,
@@ -25,6 +28,9 @@ class PointToPlaneMinimizer(Minimizer):
         distances, from_indices, indices = matches.best_distances, matches.from_indices, matches.best_indices
         dim = point_cloud.dim
         nb_matches = matches.num_matches
+
+        if self.weight_function is not None:
+            weights = self.weight_function(distances)
 
         ref_normals = reference.get_descriptor(NormalDescriptor.name, descriptors)
 
@@ -41,6 +47,11 @@ class PointToPlaneMinimizer(Minimizer):
             cross = pseudo_cross_product(p, n, dim)
             G[:dim, i] = n.squeeze()
             G[dim, i] = cross
+            if self.weight_function is not None:
+                w = weights[i]
+                h[i] *= w
+                G[0:2, i] *= w
+                G[2, i] *= w
         x = np.linalg.solve(G @ G.T, G @ h)  # this gives: [x, y, theta]
         # TODO use transformation matrix instead?
         return rigid_transformation(x)
